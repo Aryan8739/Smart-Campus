@@ -7,6 +7,7 @@ import AssignmentPage from './pages/modules/AssignmentPage'
 import AuditCompliancePage from './pages/modules/AuditCompliancePage'
 import BillingPage from './pages/modules/BillingPage'
 import ComplaintIntakePage from './pages/modules/ComplaintIntakePage'
+import CustomerDashboardAdvancedPage from './pages/modules/CustomerDashboardAdvancedPage'
 import FeedbackRatingPage from './pages/modules/FeedbackRatingPage'
 import InventoryPage from './pages/modules/InventoryPage'
 import NotificationEscalationPage from './pages/modules/NotificationEscalationPage'
@@ -24,6 +25,10 @@ function App() {
           <Route path="Docs" element={<DocumentationPage />} />
           <Route path="modules/user-access" element={<UserAccessPage />} />
           <Route path="modules/complaint-intake" element={<ComplaintIntakePage />} />
+          <Route
+            path="modules/customer-dashboard-advanced"
+            element={<CustomerDashboardAdvancedPage />}
+          />
           <Route path="modules/assignment" element={<AssignmentPage />} />
           <Route path="modules/technician-execution" element={<TechnicianExecutionPage />} />
           <Route path="modules/notification-escalation" element={<NotificationEscalationPage />} />
