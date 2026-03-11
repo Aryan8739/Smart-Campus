@@ -1,12 +1,7 @@
-import UnderDevelopment from '../../components/UnderDevelopment'
+import { AdminShell } from '../../features/userAccess'
 
 function UserAccessPage() {
-  return (
-    <UnderDevelopment
-      title="User & Access Module"
-      subtitle="Authentication, authorization, RBAC, session policies, and user-governance logic will be implemented here."
-    />
-  )
+  return <AdminShell />
 }
 
 export default UserAccessPage

@@ -19,16 +19,15 @@ const navItems = [
 ]
 
 function AppHeader() {
-  const [isDark, setIsDark] = useState(false)
-
-  useEffect(() => {
+  const [isDark, setIsDark] = useState(() => {
     const storedTheme = window.localStorage.getItem('theme')
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    const shouldUseDark = storedTheme ? storedTheme === 'dark' : prefersDark
+    return storedTheme ? storedTheme === 'dark' : prefersDark
+  })
 
-    setIsDark(shouldUseDark)
-    document.documentElement.classList.toggle('dark', shouldUseDark)
-  }, [])
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDark)
+  }, [isDark])
 
   const toggleTheme = () => {
     setIsDark((previous) => {
