@@ -66,7 +66,7 @@ function AdminShell() {
   const location = useLocation()
 
   return (
-    <main className="relative min-h-screen bg-[linear-gradient(180deg,#e9edf5_0%,#dbe3f0_48%,#d8dfec_100%)] px-4 py-6 md:px-8 md:py-10">
+    <main className="relative min-h-screen bg-[linear-gradient(180deg,#e9edf5_0%,#dbe3f0_48%,#d8dfec_100%)] px-3 py-4 md:px-6 md:py-7">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 opacity-[0.07]"
@@ -77,36 +77,36 @@ function AdminShell() {
           backgroundSize: '520px',
         }}
       />
-      <div className="mx-auto max-w-[1450px]">
-        <div className="overflow-hidden rounded-[2.25rem] bg-[#edf2f8] shadow-[0_40px_90px_-45px_rgba(37,60,109,0.42)] ring-1 ring-[rgba(160,177,208,0.35)]">
-          <div className="grid min-h-[920px] lg:grid-cols-[280px_1fr]">
-            <aside className="relative flex flex-col justify-between bg-[linear-gradient(180deg,#35497c_0%,#253661_100%)] px-5 py-8 text-white">
+      <div className="mx-auto max-w-[1360px]">
+        <div className="overflow-hidden rounded-[1.9rem] bg-[#edf2f8] shadow-[0_34px_80px_-48px_rgba(37,60,109,0.42)] ring-1 ring-[rgba(160,177,208,0.35)]">
+          <div className="grid min-h-[820px] lg:grid-cols-[248px_1fr]">
+            <aside className="relative flex flex-col justify-between bg-[linear-gradient(180deg,#35497c_0%,#253661_100%)] px-4 py-6 text-white">
               <div>
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border-4 border-white/70 bg-[rgba(102,186,210,0.3)]">
-                  <img src="/gbuLogo.png" alt="GBU" className="h-10 w-10 rounded-full object-cover" />
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border-4 border-white/70 bg-[rgba(102,186,210,0.3)]">
+                  <img src="/gbuLogo.png" alt="GBU" className="h-9 w-9 rounded-full object-cover" />
                 </div>
-                <p className="mt-4 text-center text-xs tracking-[0.15em] text-white/80">CAMPUS360 CONTROL CENTER</p>
-                <div className="mt-8 space-y-5">
+                <p className="mt-3 text-center text-[11px] tracking-[0.14em] text-white/80">SUPER ADMIN DASHBOARD</p>
+                <div className="mt-6 space-y-4">
                   {sidebarGroups.map((group) => (
                     <SidebarGroup key={group.title} title={group.title} items={group.items} />
                   ))}
                 </div>
               </div>
 
-              <div className="space-y-5">
+              <div className="space-y-4">
                 <div className="flex justify-center gap-2 text-white/80">
-                  <span className="h-2.5 w-2.5 rounded-full bg-white/90" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-white/90" />
-                  <span className="h-2.5 w-2.5 rounded-full border border-white/80" />
+                  <span className="h-2 w-2 rounded-full bg-white/90" />
+                  <span className="h-2 w-2 rounded-full bg-white/90" />
+                  <span className="h-2 w-2 rounded-full border border-white/80" />
                 </div>
-                <p className="text-center text-xs tracking-[0.3em] text-white/70">UCC GROUP 1</p>
+                <p className="text-center text-[11px] tracking-[0.26em] text-white/70">UCC GROUP 1</p>
               </div>
             </aside>
 
-            <div className="bg-[#edf2f8]">
-              <section className="relative overflow-hidden border-b border-slate-200 bg-[linear-gradient(180deg,#f8f9fd_0%,#edf2f8_100%)] px-8 py-9 md:px-12">
+            <div className="min-w-0 bg-[#edf2f8]">
+              <section className="relative overflow-hidden border-b border-slate-200 bg-[linear-gradient(180deg,#f8f9fd_0%,#edf2f8_100%)] px-5 py-6 md:px-9">
                 <div className="absolute inset-y-0 right-0 w-[36%] bg-[radial-gradient(circle_at_right,rgba(91,128,196,0.12),transparent_60%)]" />
-                <div className="absolute right-6 top-4 hidden h-[138px] w-[360px] overflow-hidden rounded-[2rem] bg-[linear-gradient(180deg,#d7deea_0%,#b7c2d3_52%,#93a0b8_100%)] ring-1 ring-[rgba(160,177,208,0.55)] md:block">
+                <div className="absolute right-5 top-4 hidden h-[118px] w-[300px] overflow-hidden rounded-[1.6rem] bg-[linear-gradient(180deg,#d7deea_0%,#b7c2d3_52%,#93a0b8_100%)] ring-1 ring-[rgba(160,177,208,0.55)] xl:block">
                   <div
                     className="absolute inset-0 opacity-[0.16]"
                     style={{
@@ -116,14 +116,14 @@ function AdminShell() {
                       backgroundSize: '120px',
                     }}
                   />
-                  <div className="absolute inset-x-6 bottom-0 h-14 rounded-t-[1.5rem] bg-[linear-gradient(180deg,#c7d8ef_0%,#e9eef6_100%)] opacity-70" />
-                  <div className="absolute bottom-7 left-8 h-10 w-24 rounded-t-[1.25rem] bg-[#7c8ea8]" />
-                  <div className="absolute bottom-7 left-36 h-16 w-28 rounded-t-[1.5rem] bg-[#9eaec4]" />
-                  <div className="absolute bottom-7 right-12 h-12 w-24 rounded-t-[1.25rem] bg-[#7d90ae]" />
-                  <div className="absolute bottom-7 left-[148px] h-20 w-4 bg-[#7f8fa6]" />
-                <div className="absolute bottom-7 left-[182px] h-20 w-4 bg-[#7f8fa6]" />
-                  <div className="absolute bottom-7 left-[216px] h-20 w-4 bg-[#7f8fa6]" />
-                  <div className="absolute bottom-7 left-[250px] h-20 w-4 bg-[#7f8fa6]" />
+                  <div className="absolute inset-x-5 bottom-0 h-12 rounded-t-[1.2rem] bg-[linear-gradient(180deg,#c7d8ef_0%,#e9eef6_100%)] opacity-70" />
+                  <div className="absolute bottom-6 left-7 h-8 w-20 rounded-t-[1rem] bg-[#7c8ea8]" />
+                  <div className="absolute bottom-6 left-28 h-14 w-24 rounded-t-[1.2rem] bg-[#9eaec4]" />
+                  <div className="absolute bottom-6 right-10 h-10 w-20 rounded-t-[1rem] bg-[#7d90ae]" />
+                  <div className="absolute bottom-6 left-[124px] h-18 w-3 bg-[#7f8fa6]" />
+                  <div className="absolute bottom-6 left-[152px] h-18 w-3 bg-[#7f8fa6]" />
+                  <div className="absolute bottom-6 left-[180px] h-18 w-3 bg-[#7f8fa6]" />
+                  <div className="absolute bottom-6 left-[208px] h-18 w-3 bg-[#7f8fa6]" />
                 </div>
                 <AdminTopbar
                   title={pageTitles[location.pathname] ?? 'Dashboard'}
@@ -131,7 +131,7 @@ function AdminShell() {
                 />
               </section>
 
-              <div className="space-y-7 p-7 md:p-10">
+              <div className="min-w-0 space-y-5 p-5 md:p-7">
                 <GlobalFiltersBar
                   filters={adminModule.filters}
                   setFilters={adminModule.setFilters}

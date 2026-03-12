@@ -13,7 +13,7 @@ function Badge({
     info: 'bg-[rgba(var(--color-primary),0.12)] text-[rgb(var(--color-primary))]',
   }
 
-  return <span className={`rounded-full px-3 py-1 text-xs font-semibold ${styles[tone]}`}>{label}</span>
+  return <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${styles[tone]}`}>{label}</span>
 }
 
 export default Badge

@@ -13,17 +13,17 @@ function GlobalFiltersBar({
   }
 
   return (
-    <div className="grid gap-3 rounded-[1.35rem] border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-5 xl:grid-cols-6">
+    <div className="grid gap-2.5 rounded-[1.15rem] border border-slate-200 bg-white p-3.5 shadow-sm md:grid-cols-5 xl:grid-cols-6">
       <input
         value={filters.search}
         onChange={(event) => updateFilter('search', event.target.value)}
         placeholder="Search users, email, phone"
-        className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none focus:border-[rgb(var(--color-primary))]"
+        className="rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-[13px] text-slate-700 outline-none focus:border-[rgb(var(--color-primary))]"
       />
       <select
         value={filters.dateRange}
         onChange={(event) => updateFilter('dateRange', event.target.value)}
-        className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none"
+        className="rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-[13px] text-slate-700 outline-none"
       >
         <option value="7d">Last 7 days</option>
         <option value="30d">Last 30 days</option>
@@ -32,7 +32,7 @@ function GlobalFiltersBar({
       <select
         value={filters.campus}
         onChange={(event) => updateFilter('campus', event.target.value)}
-        className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none"
+        className="rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-[13px] text-slate-700 outline-none"
       >
         <option value="All">All Campuses</option>
         <option value="Main Campus">Main Campus</option>
@@ -42,7 +42,7 @@ function GlobalFiltersBar({
       <select
         value={filters.department}
         onChange={(event) => updateFilter('department', event.target.value)}
-        className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none"
+        className="rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-[13px] text-slate-700 outline-none"
       >
         <option value="All">All Departments</option>
         {departments.map((department) => (
@@ -54,7 +54,7 @@ function GlobalFiltersBar({
       <select
         value={filters.role}
         onChange={(event) => updateFilter('role', event.target.value)}
-        className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none"
+        className="rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-[13px] text-slate-700 outline-none"
       >
         <option value="All">All Roles</option>
         {roles.map((role) => (
@@ -66,7 +66,7 @@ function GlobalFiltersBar({
       <select
         value={filters.status}
         onChange={(event) => updateFilter('status', event.target.value)}
-        className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none"
+        className="rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-[13px] text-slate-700 outline-none"
       >
         <option value="All">All Status</option>
         <option value="Active">Active</option>

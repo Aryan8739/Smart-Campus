@@ -23,7 +23,7 @@ function UserManagement() {
 
       <ApprovalWorkflow />
 
-      <section className="grid gap-7 xl:grid-cols-[1.1fr_0.9fr]">
+      <section className="grid min-w-0 gap-7 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <UserFormPanel />
         <DataPanel title="Approval Queue">
           <div className="mb-4 flex gap-2">

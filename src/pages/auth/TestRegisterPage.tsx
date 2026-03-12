@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import type { UserRole } from '../../contexts/authTypes'
+import { useAuth } from '../../contexts/useAuth'
 
 function TestRegisterPage() {
   const [name, setName] = useState('')
@@ -8,17 +9,11 @@ function TestRegisterPage() {
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<UserRole>('super_admin')
   const navigate = useNavigate()
+  const { register } = useAuth()
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    const user = {
-      id: Date.now().toString(),
-      name: name,
-      email: email,
-      role: role,
-      department: role === 'super_admin' ? 'Central Admin Dashboard' : 'Computer Science',
-    }
-    localStorage.setItem('campus360_user', JSON.stringify(user))
+    await register(name, email, password, role)
     navigate(role === 'super_admin' ? '/modules/user-access' : '/')
   }
 

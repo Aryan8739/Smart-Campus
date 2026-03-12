@@ -47,8 +47,8 @@ function UserTable() {
       ) : !users.length ? (
         <EmptyState title="No users found" description="Adjust filters or create a new user to populate the directory." />
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full border-separate border-spacing-y-3">
+        <div className="overflow-x-auto pb-2">
+          <table className="min-w-[1560px] border-separate border-spacing-y-3">
             <thead>
               <tr className="text-left text-xs uppercase tracking-[0.18em] text-slate-500">
                 <th className="px-4"><input type="checkbox" checked={selected.length === users.length && users.length > 0} onChange={() => setSelected(selected.length === users.length ? [] : users.map((user) => user.id))} /></th>

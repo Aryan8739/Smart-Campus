@@ -15,18 +15,34 @@ export type RiskLevel = 'Low' | 'Moderate' | 'High'
 export type AuditOutcome = 'Success' | 'Warning' | 'Blocked'
 
 export type AdminRoleKey = 'SUPER_ADMIN' | 'SECURITY_ADMIN' | 'OPS_ADMIN'
+export type RoleLevel = 'Super Admin' | 'Security Admin' | 'Operations Admin' | 'Custom'
 
-export type PermissionKey =
+type BuiltInPermissionKey =
   | 'USER_CREATE'
   | 'USER_DELETE'
   | 'USER_EDIT'
+  | 'ROLE_CREATE'
   | 'ROLE_EDIT'
+  | 'ROLE_DELETE'
+  | 'COMPLAINT_VIEW'
+  | 'COMPLAINT_ASSIGN'
+  | 'COMPLAINT_CLOSE'
+  | 'VENDOR_CREATE'
+  | 'VENDOR_EDIT'
+  | 'VENDOR_DELETE'
+  | 'TECHNICIAN_ASSIGN'
+  | 'TECHNICIAN_EDIT'
+  | 'VIEW_AUDIT_LOG'
+  | 'EXPORT_REPORTS'
+  | 'NOTIFICATION_CONTROL'
   | 'FORCE_LOGOUT'
   | 'VIEW_AUDIT'
   | 'SYSTEM_SETTINGS_EDIT'
   | 'USER_IMPERSONATE'
   | 'REPORTS_VIEW'
   | 'ANALYTICS_VIEW'
+
+export type PermissionKey = BuiltInPermissionKey | (string & {})
 
 export interface UserAccessStat {
   label: string
@@ -54,21 +70,55 @@ export interface ManagedUser {
   expiryDate: string
 }
 
+export interface PermissionDefinition {
+  key: string
+  label: string
+  description: string
+  category?: string
+}
+
 export interface PermissionCategory {
   category: string
-  permissions: string[]
+  permissions: PermissionDefinition[]
 }
 
 export interface RoleDefinition {
   id: string
   name: string
   key: AdminRoleKey | string
+  description: string
+  level: RoleLevel
   owner: string
   members: number
   policy: string
+  departmentAccess: string[]
+  campusAccess: CampusCode[]
+  defaultPermissions: string[]
+  priority: number
+  isSystem: boolean
+  isActive: boolean
+  badgeColor: 'slate' | 'blue' | 'emerald' | 'amber' | 'rose'
   conflictStatus: 'Clear' | 'Needs Review'
   coverage: number
   permissions: Record<PermissionKey | string, boolean>
+}
+
+export interface RoleChangeLog {
+  id: string
+  roleName: string
+  action:
+    | 'Role edited'
+    | 'Permission changed'
+    | 'Role created'
+    | 'Role cloned'
+    | 'Role deleted'
+    | 'Template imported'
+    | 'Permission added'
+    | 'Permission removed'
+    | 'Permission updated'
+  actor: string
+  timestamp: string
+  detail: string
 }
 
 export interface ActiveSession {

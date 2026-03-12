@@ -9,16 +9,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   })
   const [isLoading] = useState(false)
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, role: UserRole = 'customer') => {
     void password
     await new Promise(resolve => setTimeout(resolve, 1000))
 
     const mockUser: User = {
       id: '1',
-      name: 'Priya Sharma',
+      name: role === 'super_admin' ? 'Ashish Bharti' : 'Priya Sharma',
       email,
-      role: 'customer',
-      department: 'Computer Science',
+      role,
+      department: role === 'super_admin' ? 'Central Admin Dashboard' : 'Computer Science',
     }
     
     setUser(mockUser)

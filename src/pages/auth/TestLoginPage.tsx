@@ -1,23 +1,18 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import type { UserRole } from '../../contexts/authTypes'
+import { useAuth } from '../../contexts/useAuth'
 
 function TestLoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<UserRole>('super_admin')
   const navigate = useNavigate()
+  const { login } = useAuth()
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    const user = {
-      id: '1',
-      name: role === 'super_admin' ? 'Ashish Bharti' : 'Priya Sharma',
-      email: email,
-      role,
-      department: role === 'super_admin' ? 'Central Admin Dashboard' : 'Computer Science',
-    }
-    localStorage.setItem('campus360_user', JSON.stringify(user))
+    await login(email, password, role)
     navigate(role === 'super_admin' ? '/modules/user-access' : '/')
   }
 
