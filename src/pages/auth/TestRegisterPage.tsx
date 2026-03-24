@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import type { UserRole } from '../../contexts/authTypes'
 import { useAuth } from '../../contexts/useAuth'
+import { getDefaultRouteForRole } from '../../utils/navigation'
 
 function TestRegisterPage() {
   const [name, setName] = useState('')
@@ -14,25 +15,25 @@ function TestRegisterPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     await register(name, email, password, role)
-    navigate(role === 'super_admin' ? '/modules/user-access' : '/')
+    navigate(getDefaultRouteForRole(role))
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[rgb(var(--color-bg))] px-4 py-12">
-      <div className="w-full max-w-md rounded-[1.75rem] border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-8 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.55)]">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--bg-primary)] px-4 py-12">
+      <div className="w-full max-w-md rounded-[1.75rem] border border-[var(--border-color)] bg-[var(--card-bg)] p-8 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.55)]">
         <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-[rgb(var(--color-primary))]">
           CAMPUS360
         </p>
-        <h1 className="mt-3 text-center text-3xl font-semibold text-[rgb(var(--color-text-primary))]">
+        <h1 className="mt-3 text-center text-3xl font-semibold text-[var(--text-primary)]">
           Create Secure Account
         </h1>
-        <p className="mt-2 text-center text-sm text-[rgb(var(--color-text-secondary))]">
+        <p className="mt-2 text-center text-sm text-[var(--text-secondary)]">
           Gautam Buddha University
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-text-primary))]">
+            <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
               Full Name
             </label>
             <input
@@ -40,13 +41,13 @@ function TestRegisterPage() {
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-4 py-3 text-[rgb(var(--color-text-primary))] outline-none focus:border-[rgb(var(--color-primary))]"
+              className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-3 text-[var(--text-primary)] outline-none focus:border-[rgb(var(--color-primary))]"
               placeholder="Rahul Kumar"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-text-primary))]">
+            <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
               Email Address
             </label>
             <input
@@ -54,19 +55,19 @@ function TestRegisterPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-4 py-3 text-[rgb(var(--color-text-primary))] outline-none focus:border-[rgb(var(--color-primary))]"
+              className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-3 text-[var(--text-primary)] outline-none focus:border-[rgb(var(--color-primary))]"
               placeholder="student@gbu.ac.in"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-text-primary))]">
+            <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
               Select Role
             </label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as UserRole)}
-              className="w-full rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-4 py-3 text-[rgb(var(--color-text-primary))] outline-none focus:border-[rgb(var(--color-primary))]"
+              className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-3 text-[var(--text-primary)] outline-none focus:border-[rgb(var(--color-primary))]"
             >
               <option value="super_admin">Super Admin</option>
               <option value="security_admin">Security Admin</option>
@@ -80,7 +81,7 @@ function TestRegisterPage() {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-text-primary))]">
+            <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
               Password
             </label>
             <input
@@ -88,7 +89,7 @@ function TestRegisterPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-4 py-3 text-[rgb(var(--color-text-primary))] outline-none focus:border-[rgb(var(--color-primary))]"
+              className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-3 text-[var(--text-primary)] outline-none focus:border-[rgb(var(--color-primary))]"
               placeholder="Minimum 8 chars with special character"
               minLength={8}
             />
@@ -102,7 +103,7 @@ function TestRegisterPage() {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-[rgb(var(--color-text-secondary))]">
+        <p className="mt-6 text-center text-sm text-[var(--text-secondary)]">
           Already have an account?{' '}
           <Link
             to="/login"
@@ -113,7 +114,7 @@ function TestRegisterPage() {
         </p>
 
         <p className="mt-4 text-center">
-          <Link to="/" className="text-sm text-[rgb(var(--color-text-secondary))] hover:opacity-80">
+          <Link to="/" className="text-sm text-[var(--text-secondary)] hover:opacity-80">
             ← Back to Home
           </Link>
         </p>

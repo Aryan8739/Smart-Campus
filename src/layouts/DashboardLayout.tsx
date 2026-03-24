@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Outlet, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/useAuth'
+import { useTheme } from '../hooks/useTheme'
 
 interface SidebarItem {
   label: string
@@ -19,22 +20,10 @@ const sidebarItems: SidebarItem[] = [
 
 function DashboardLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
-  const [isDark, setIsDark] = useState(() => {
-    const stored = localStorage.getItem('theme')
-    return stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)
-  })
-  
+  const { isDark, toggleTheme } = useTheme()
+
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-
-  const toggleTheme = () => {
-    setIsDark(prev => {
-      const next = !prev
-      document.documentElement.classList.toggle('dark', next)
-      localStorage.setItem('theme', next ? 'dark' : 'light')
-      return next
-    })
-  }
 
   const handleLogout = () => {
     logout()
@@ -46,20 +35,20 @@ function DashboardLayout() {
   )
 
   return (
-    <div className="flex min-h-screen bg-[rgb(var(--color-bg))]">
+    <div className="flex min-h-screen bg-[var(--bg-primary)]">
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 z-40 h-screen border-r border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] transition-transform ${
+        className={`fixed left-0 top-0 z-40 h-screen border-r border-[var(--border-color)] bg-[var(--card-bg)] transition-transform ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } w-64`}
       >
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="border-b border-[rgb(var(--color-border))] p-4">
-            <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
+          <div className="border-b border-[var(--border-color)] p-4">
+            <h2 className="text-lg font-bold text-[var(--text-primary)]">
               CAMPUS360
             </h2>
-            <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+            <p className="text-xs text-[var(--text-secondary)]">
               Smart Campus Platform
             </p>
           </div>
@@ -71,7 +60,7 @@ function DashboardLayout() {
                 <li key={item.path}>
                   <Link
                     to={item.path}
-                    className="flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg))]"
+                    className="flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--bg-primary)]"
                   >
                     <span className="text-lg">{item.icon}</span>
                     {item.label}
@@ -82,12 +71,12 @@ function DashboardLayout() {
           </nav>
 
           {/* User Profile */}
-          <div className="border-t border-[rgb(var(--color-border))] p-4">
-            <div className="mb-3 rounded-lg bg-[rgb(var(--color-bg))] p-3">
-              <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+          <div className="border-t border-[var(--border-color)] p-4">
+            <div className="mb-3 rounded-lg bg-[var(--bg-primary)] p-3">
+              <p className="text-sm font-medium text-[var(--text-primary)]">
                 {user?.name}
               </p>
-              <p className="text-xs text-[rgb(var(--color-text-secondary))]">
+              <p className="text-xs text-[var(--text-secondary)]">
                 {user?.role.replace('_', ' ')}
               </p>
             </div>
@@ -104,11 +93,11 @@ function DashboardLayout() {
       {/* Main Content */}
       <div className={`flex-1 ${isSidebarOpen ? 'ml-64' : 'ml-0'}`}>
         {/* Top Navbar */}
-        <header className="sticky top-0 z-30 border-b border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))]">
+        <header className="sticky top-0 z-30 border-b border-[var(--border-color)] bg-[var(--card-bg)]">
           <div className="flex items-center justify-between px-6 py-4">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-2 text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-border))]"
+              className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] p-2 text-[var(--text-primary)] hover:bg-[var(--border-color)]"
             >
               {isSidebarOpen ? '←' : '→'}
             </button>
@@ -116,7 +105,7 @@ function DashboardLayout() {
             <div className="flex items-center gap-4">
               <button
                 onClick={toggleTheme}
-                className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-4 py-2 text-sm font-medium text-[rgb(var(--color-text-primary))]"
+                className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-2 text-sm font-medium text-[var(--text-primary)]"
               >
                 {isDark ? '☀️ Light' : '🌙 Dark'}
               </button>

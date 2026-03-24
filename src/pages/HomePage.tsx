@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/useAuth'
+import { getDefaultRouteForRole } from '../utils/navigation'
 
 function HomePage() {
   const { isAuthenticated, user } = useAuth()
@@ -27,7 +28,7 @@ function HomePage() {
                 Role: {user?.role.replace('_', ' ')}
               </p>
               <Link
-                to="/dashboard"
+                to={getDefaultRouteForRole(user?.role ?? 'customer')}
                 className="mt-6 inline-block rounded-lg bg-[rgb(var(--color-primary))] px-6 py-3 font-medium text-white hover:opacity-90"
               >
                 Go to Dashboard

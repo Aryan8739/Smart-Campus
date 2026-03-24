@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import type { UserRole } from '../../contexts/authTypes'
 import { useAuth } from '../../contexts/useAuth'
+import { getDefaultRouteForRole } from '../../utils/navigation'
 
 function TestLoginPage() {
   const [email, setEmail] = useState('')
@@ -13,7 +14,7 @@ function TestLoginPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     await login(email, password, role)
-    navigate(role === 'super_admin' ? '/modules/user-access' : '/')
+    navigate(getDefaultRouteForRole(role))
   }
 
   return (

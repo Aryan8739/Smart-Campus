@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import AppLayout from './layouts/AppLayout'
 import DocumentationPage from './pages/Documentation'
+import HomePage from './pages/HomePage'
 import TestLoginPage from './pages/auth/TestLoginPage'
 import TestRegisterPage from './pages/auth/TestRegisterPage'
 import AnalyticsPage from './pages/modules/AnalyticsPage'
@@ -39,11 +40,10 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<AppLayout />}>
-            <Route index element={<Navigate to="/user-access/dashboard" replace />} />
+            <Route index element={<HomePage />} />
             <Route path="login" element={<TestLoginPage />} />
             <Route path="register" element={<TestRegisterPage />} />
             <Route path="docs" element={<DocumentationPage />} />
-            <Route path="Docs" element={<DocumentationPage />} />
             <Route path="user-access" element={<UserAccessPage />}>
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard" element={<DashboardPage />} />

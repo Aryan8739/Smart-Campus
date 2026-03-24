@@ -9,7 +9,7 @@ function AppLayout() {
     location.pathname.startsWith('/modules/user-access')
 
   return (
-    <div className="min-h-screen bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text-primary))]">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
       {!hideHeader ? <AppHeader /> : null}
       <Outlet />
     </div>
