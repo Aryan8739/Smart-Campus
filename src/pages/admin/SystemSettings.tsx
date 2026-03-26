@@ -34,17 +34,17 @@ function SystemSettings() {
             ['credentialExpiryAlerts', 'Credential expiry alert system'],
             ['autoForceLogoutHighRisk', 'Auto force logout on high-risk login'],
           ].map(([key, label]) => (
-            <label key={key} className="flex items-center justify-between rounded-[1.1rem] bg-slate-50 px-4 py-4">
+            <label key={key} className="flex items-center justify-between rounded-[1.1rem] border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-4 shadow-sm">
               <div>
-                <p className="font-semibold text-slate-800">{label}</p>
-                <p className="mt-1 text-sm text-slate-500">Automation rule available campus-wide.</p>
+                <p className="font-semibold text-[var(--text-primary)]">{label}</p>
+                <p className="mt-1 text-sm text-[var(--text-secondary)]">Automation rule available campus-wide.</p>
               </div>
               <button
                 disabled={!can('SYSTEM_SETTINGS_EDIT')}
                 onClick={() => toggle(key as keyof typeof settings)}
-                className={`relative h-7 w-12 rounded-full transition ${settings[key as keyof typeof settings] ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                className={`relative h-7 w-12 rounded-full transition ${settings[key as keyof typeof settings] ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'} ${!can('SYSTEM_SETTINGS_EDIT') ? 'cursor-not-allowed opacity-60' : ''}`}
               >
-                <span className={`absolute top-1 h-5 w-5 rounded-full bg-white transition ${settings[key as keyof typeof settings] ? 'left-6' : 'left-1'}`} />
+                <span className={`absolute top-1 h-5 w-5 rounded-full bg-white dark:bg-slate-100 transition ${settings[key as keyof typeof settings] ? 'left-6' : 'left-1'}`} />
               </button>
             </label>
           ))}

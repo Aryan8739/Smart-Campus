@@ -170,15 +170,15 @@ function RoleMatrix() {
           {logs.map((log) => (
             <article
               key={log.id}
-              className="flex flex-col gap-3 rounded-[1.15rem] border border-slate-200 bg-slate-50 p-4 md:flex-row md:items-center md:justify-between"
+              className="flex flex-col gap-3 rounded-[1.15rem] border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4 md:flex-row md:items-center md:justify-between"
             >
               <div>
-                <p className="text-sm font-semibold text-slate-800">
+                <p className="text-sm font-semibold text-[var(--text-primary)]">
                   {log.action} • {log.roleName}
                 </p>
-                <p className="mt-1 text-sm text-slate-500">{log.detail}</p>
+                <p className="mt-1 text-sm text-[var(--text-secondary)]">{log.detail}</p>
               </div>
-              <div className="text-sm text-slate-500">
+              <div className="text-sm text-[var(--text-secondary)]">
                 <p>{log.actor}</p>
                 <p>{log.timestamp}</p>
               </div>
