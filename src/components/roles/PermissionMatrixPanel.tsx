@@ -15,7 +15,7 @@ function ToggleSwitch({ checked, disabled, onChange }: { checked: boolean; disab
       type="button"
       onClick={onChange}
       disabled={disabled}
-      className={`relative h-7 w-12 rounded-full transition ${checked ? 'bg-[linear-gradient(90deg,#3157a3_0%,#4d79d6_100%)]' : 'bg-slate-300'} ${disabled ? 'cursor-not-allowed opacity-45' : ''}`}
+      className={`relative h-7 w-12 rounded-full transition ${checked ? 'bg-[linear-gradient(90deg,#3157a3_0%,#4d79d6_100%)]' : 'bg-[var(--border-color)]'} ${disabled ? 'cursor-not-allowed opacity-45' : ''}`}
     >
       <span className={`absolute top-1 h-5 w-5 rounded-full bg-white transition ${checked ? 'left-6' : 'left-1'}`} />
     </button>
@@ -221,7 +221,7 @@ function PermissionMatrixPanel({
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search permissions, labels, or descriptions" className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none lg:max-w-md" />
           <div className="flex flex-wrap gap-2">
             {sortedRoles.map((role) => (
-              <button key={role.id} onClick={() => setSelectedRoleId(role.id)} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${selectedRoleId === role.id ? 'bg-[rgb(var(--color-primary))] text-white' : 'bg-slate-100 text-slate-600'}`}>{role.name}</button>
+              <button key={role.id} onClick={() => setSelectedRoleId(role.id)} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${selectedRoleId === role.id ? 'bg-[rgb(var(--color-primary))] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] border border-[var(--border-color)]'}`}>{role.name}</button>
             ))}
           </div>
         </div>
@@ -248,7 +248,7 @@ function PermissionMatrixPanel({
             const isCollapsed = collapsedGroups[category.category]
             return (
               <div key={category.category} className="rounded-[1.1rem] border border-[var(--border-color)] bg-[var(--card-bg)] shadow-sm">
-                <button onClick={() => setCollapsedGroups((previous) => ({ ...previous, [category.category]: !previous[category.category] }))} className="flex w-full items-center justify-between rounded-t-[1.1rem] bg-[#eaf2fc] px-4 py-3 text-left text-sm font-semibold text-[#243a63]">
+                <button onClick={() => setCollapsedGroups((previous) => ({ ...previous, [category.category]: !previous[category.category] }))} className="flex w-full items-center justify-between rounded-t-[1.1rem] border-b border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-3 text-left text-sm font-semibold text-[var(--text-primary)]">
                   <span>{category.category}</span>
                   <span>{isCollapsed ? '+' : '-'}</span>
                 </button>
@@ -273,14 +273,14 @@ function PermissionMatrixPanel({
           })}
         </div>
 
-        <div className="overflow-x-auto rounded-[1.2rem] border border-[rgba(120,142,179,0.35)] bg-white">
+        <div className="overflow-x-auto rounded-[1.2rem] border border-[var(--border-color)] bg-[var(--card-bg)]">
           <table className="min-w-[980px] border-separate border-spacing-0">
             <thead className="sticky top-0 z-20">
               <tr>
-                <th className="sticky left-0 z-30 border-b border-[#c7d6ef] bg-[#edf4fd] px-4 py-4 text-left text-xs uppercase tracking-[0.18em] text-[#243a63]">Permission</th>
+                <th className="sticky left-0 z-30 border-b border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-4 text-left text-xs uppercase tracking-[0.18em] text-[var(--text-primary)]">Permission</th>
                 {sortedRoles.map((role) => (
-                  <th key={role.id} className="border-b border-[#c7d6ef] bg-[#edf4fd] px-4 py-4 text-left text-xs uppercase tracking-[0.18em] text-[#243a63]">
-                    <div className="space-y-1"><span>{role.name}</span><div className="h-1.5 rounded-full bg-[#c7d6ef]"><div className="h-1.5 rounded-full bg-[#4f7de1]" style={{ width: `${role.coverage}%` }} /></div></div>
+                  <th key={role.id} className="border-b border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-4 text-left text-xs uppercase tracking-[0.18em] text-[var(--text-primary)]">
+                    <div className="space-y-1"><span>{role.name}</span><div className="h-1.5 rounded-full bg-[var(--border-color)]"><div className="h-1.5 rounded-full bg-[rgb(var(--color-primary))]" style={{ width: `${role.coverage}%` }} /></div></div>
                   </th>
                 ))}
               </tr>
@@ -289,11 +289,11 @@ function PermissionMatrixPanel({
               {visibleCategories.map((category) => (
                 <>
                   <tr key={category.category}>
-                    <td colSpan={sortedRoles.length + 1} className="bg-[#eaf2fc] px-4 py-3 text-sm font-semibold text-[#243a63]">{category.category}</td>
+                    <td colSpan={sortedRoles.length + 1} className="border-b border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-3 text-sm font-semibold text-[var(--text-primary)]">{category.category}</td>
                   </tr>
-                  {category.permissions.map((permission) => (
-                    <tr key={permission.key} className="odd:bg-white even:bg-[#f7faff]">
-                      <td className="sticky left-0 z-10 border-b border-slate-200 bg-inherit px-4 py-3 align-top" title={permission.description}>
+                  {category.permissions.map((permission, index) => (
+                    <tr key={permission.key} className={index % 2 === 0 ? 'bg-[var(--card-bg)]' : 'bg-[var(--bg-primary)]'}>
+                      <td className="sticky left-0 z-10 border-b border-[var(--border-color)] bg-inherit px-4 py-3 align-top" title={permission.description}>
                         <p className="text-sm font-semibold text-[var(--text-primary)]">{permission.key}</p>
                         <p className="mt-1 text-xs text-[var(--text-secondary)]">{permission.label}</p>
                       </td>
@@ -301,7 +301,7 @@ function PermissionMatrixPanel({
                         const blockReason = getPermissionBlockReason(role.id, permission.key)
                         const disabled = Boolean(blockReason) && !role.permissions[permission.key]
                         return (
-                          <td key={`${role.id}-${permission.key}`} className="border-b border-slate-200 bg-inherit px-4 py-3 text-sm">
+                          <td key={`${role.id}-${permission.key}`} className="border-b border-[var(--border-color)] bg-inherit px-4 py-3 text-sm">
                             <div className="space-y-2">
                               <ToggleSwitch checked={Boolean(role.permissions[permission.key])} disabled={disabled} onChange={() => togglePermission(role.id, permission.key)} />
                               <p className={`max-w-[12rem] text-xs ${blockReason ? 'text-amber-600' : 'text-[var(--text-secondary)]'}`}>{blockReason ? `Locked: ${blockReason}` : permission.description}</p>
@@ -324,7 +324,7 @@ function PermissionMatrixPanel({
             <h3 className="text-lg font-semibold text-[var(--text-primary)]">Delete Permission</h3>
             <p className="mt-2 text-sm text-[var(--text-secondary)]">Delete <span className="font-semibold text-[var(--text-primary)]">{pendingDeletePermission.key}</span>? This will remove it from the RBAC catalog.</p>
             <div className="mt-5 flex justify-end gap-3">
-              <button onClick={() => setPendingDeletePermission(null)} className="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-100">Cancel</button>
+              <button onClick={() => setPendingDeletePermission(null)} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)]">Cancel</button>
               <button onClick={confirmDeletePermission} className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white">Confirm Delete</button>
             </div>
           </div>
