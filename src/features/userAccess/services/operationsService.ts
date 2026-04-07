@@ -1,0 +1,97 @@
+import type { ComplaintRecord, TechnicianRecord, VendorRecord } from '../types'
+
+export const complaintRecords: ComplaintRecord[] = [
+  {
+    id: 'CMP-2041',
+    title: 'Main server room cooling issue',
+    campus: 'Main Campus',
+    department: 'IT Infrastructure',
+    status: 'Open',
+    priority: 'High',
+    vendor: 'XY Facilities',
+    technician: 'Amit Yadav',
+    createdDate: '11 Mar 2026',
+  },
+  {
+    id: 'CMP-2032',
+    title: 'Hostel C water line maintenance',
+    campus: 'North Campus',
+    department: 'Civil Works',
+    status: 'Assigned',
+    priority: 'Medium',
+    vendor: 'Z1 Maintenance',
+    technician: 'Riya Nanda',
+    createdDate: '10 Mar 2026',
+  },
+  {
+    id: 'CMP-2018',
+    title: 'Library lighting panel fault',
+    campus: 'Research Park',
+    department: 'Electrical Maintenance',
+    status: 'Resolved',
+    priority: 'Low',
+    vendor: 'Prime Infra',
+    technician: 'Sneha Verma',
+    createdDate: '08 Mar 2026',
+  },
+]
+
+export const vendorRecords: VendorRecord[] = [
+  {
+    id: 'VEN-1',
+    name: 'XY Facilities',
+    campus: 'Main Campus',
+    category: 'Electrical and surveillance maintenance',
+    activeTickets: 14,
+    slaScore: 96,
+    lastAudit: '08 Mar 2026',
+  },
+  {
+    id: 'VEN-2',
+    name: 'Z1 Maintenance',
+    campus: 'North Campus',
+    category: 'Civil and water supply operations',
+    activeTickets: 11,
+    slaScore: 92,
+    lastAudit: '07 Mar 2026',
+  },
+  {
+    id: 'VEN-3',
+    name: 'Prime Infra',
+    campus: 'Research Park',
+    category: 'HVAC and plant utility services',
+    activeTickets: 7,
+    slaScore: 88,
+    lastAudit: '05 Mar 2026',
+  },
+]
+
+export const technicianRecords: TechnicianRecord[] = [
+  {
+    id: 'TEC-1',
+    name: 'Amit Yadav',
+    campus: 'Research Park',
+    department: 'Civil Works',
+    assignedTasks: 12,
+    completionRate: 78,
+    risk: 'High',
+  },
+  {
+    id: 'TEC-2',
+    name: 'Riya Nanda',
+    campus: 'North Campus',
+    department: 'Administration',
+    assignedTasks: 9,
+    completionRate: 91,
+    risk: 'Moderate',
+  },
+  {
+    id: 'TEC-3',
+    name: 'Sneha Verma',
+    campus: 'Main Campus',
+    department: 'Central Operations',
+    assignedTasks: 6,
+    completionRate: 94,
+    risk: 'Low',
+  },
+]
