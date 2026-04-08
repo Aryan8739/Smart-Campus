@@ -1,7 +1,6 @@
 import { type ComponentType, useEffect, useMemo, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import {
-  BookOpen,
   ChevronDown,
   ChevronUp,
   Menu,
@@ -106,9 +105,7 @@ function AppHeader() {
 
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 md:px-8">
         <Link to="/" className="flex min-w-0 items-center gap-3">
-          <div className="grid h-11 w-11 place-content-center rounded-2xl bg-[rgb(var(--color-primary))] text-white shadow-lg shadow-[rgba(var(--color-primary),0.28)]">
-            <BookOpen size={20} />
-          </div>
+          <img src="/gbuLogo.png" alt="logo" className='h-16' />
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold md:text-base">Smart Campus Portal</p>
             <p className="truncate text-xs text-[rgb(var(--color-text-secondary))] md:text-sm">

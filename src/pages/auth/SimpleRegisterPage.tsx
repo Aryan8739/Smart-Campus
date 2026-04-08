@@ -1,6 +1,7 @@
-import { useState, FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { useAuth, UserRole } from '../../contexts/AuthContext'
+import type { UserRole } from '../../contexts/authTypes'
+import { useAuth } from '../../contexts/useAuth'
 
 function SimpleRegisterPage() {
   const [name, setName] = useState('')
