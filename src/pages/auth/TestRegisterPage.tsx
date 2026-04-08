@@ -54,8 +54,8 @@ function TestRegisterPage() {
     const { password: _, ...userWithoutPassword } = newUser
     localStorage.setItem('campus360_user', JSON.stringify(userWithoutPassword))
 
-    // Redirect to home
-    navigate('/')
+    // Redirect to dashboard
+    navigate('/dashboard')
   }
 
   return (

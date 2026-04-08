@@ -25,7 +25,7 @@ function TestLoginPage() {
         department: 'Computer Science'
       }
       localStorage.setItem('campus360_user', JSON.stringify(user))
-      navigate('/')
+      navigate('/dashboard')
       return
     }
 
@@ -37,7 +37,7 @@ function TestLoginPage() {
       // Store current user (without password)
       const { password: _, ...userWithoutPassword } = foundUser
       localStorage.setItem('campus360_user', JSON.stringify(userWithoutPassword))
-      navigate('/')
+      navigate('/dashboard')
     } else {
       setError('Invalid email or password. Try demo account: rahul.kumar@gbu.ac.in / password123')
     }
