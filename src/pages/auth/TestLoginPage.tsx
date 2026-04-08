@@ -1,111 +1,104 @@
-import { useState, FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import type { UserRole } from '../../contexts/authTypes'
+import { useAuth } from '../../contexts/useAuth'
+import { getDefaultRouteForRole } from '../../utils/navigation'
 
 function TestLoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const [role, setRole] = useState<UserRole>('super_admin')
   const navigate = useNavigate()
+  const { login } = useAuth()
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setError('')
-
-    // Demo account credentials
-    const demoEmail = 'rahul.kumar@gbu.ac.in'
-    const demoPassword = 'password123'
-
-    // Check if using demo account
-    if (email === demoEmail && password === demoPassword) {
-      const user = {
-        id: 'demo1',
-        name: 'Rahul Kumar',
-        email: email,
-        role: 'customer',
-        department: 'Computer Science'
-      }
-      localStorage.setItem('campus360_user', JSON.stringify(user))
-      navigate('/dashboard')
-      return
-    }
-
-    // Check registered users
-    const registeredUsers = JSON.parse(localStorage.getItem('campus360_users') || '[]')
-    const foundUser = registeredUsers.find((u: any) => u.email === email && u.password === password)
-
-    if (foundUser) {
-      // Store current user (without password)
-      const { password: _, ...userWithoutPassword } = foundUser
-      localStorage.setItem('campus360_user', JSON.stringify(userWithoutPassword))
-      navigate('/dashboard')
-    } else {
-      setError('Invalid email or password. Try demo account: rahul.kumar@gbu.ac.in / password123')
-    }
+    await login(email, password, role)
+    navigate(getDefaultRouteForRole(role))
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-center text-blue-600 mb-2">CAMPUS360</h1>
-        <p className="text-center text-gray-600 mb-8">Gautam Buddha University</p>
-        
-        <h2 className="text-2xl font-bold mb-6">Welcome Back</h2>
+    <div className="flex min-h-screen items-center justify-center bg-[rgb(var(--color-bg))] px-4 py-10">
+      <div className="w-full max-w-md rounded-[1.75rem] border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-8 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.55)]">
+        <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-[rgb(var(--color-primary))]">
+          CAMPUS360
+        </p>
+        <h1 className="mt-3 text-center text-3xl font-semibold text-[rgb(var(--color-text-primary))]">
+          Secure Sign In
+        </h1>
+        <p className="mt-2 text-center text-sm text-[rgb(var(--color-text-secondary))]">
+          Gautam Buddha University
+        </p>
 
-        {/* Demo Account Info */}
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm font-semibold text-blue-800 mb-2">Demo Account:</p>
-          <p className="text-sm text-blue-700">Email: <span className="font-mono">rahul.kumar@gbu.ac.in</span></p>
-          <p className="text-sm text-blue-700">Password: <span className="font-mono">password123</span></p>
-        </div>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{error}</p>
-            </div>
-          )}
-
+        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Email Address</label>
+            <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-text-primary))]">
+              Email Address
+            </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-4 py-3 text-[rgb(var(--color-text-primary))] outline-none focus:border-[rgb(var(--color-primary))]"
               placeholder="student@gbu.ac.in"
             />
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium mb-2">Password</label>
+            <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-text-primary))]">
+              Demo Role
+            </label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value as UserRole)}
+              className="w-full rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-4 py-3 text-[rgb(var(--color-text-primary))] outline-none focus:border-[rgb(var(--color-primary))]"
+            >
+              <option value="super_admin">Super Admin</option>
+              <option value="security_admin">Security Admin</option>
+              <option value="ops_admin">Ops Admin</option>
+              <option value="campus_admin">Campus Admin</option>
+              <option value="department_admin">Department Admin</option>
+              <option value="vendor">Vendor</option>
+              <option value="technician">Technician</option>
+              <option value="customer">Customer</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-text-primary))]">
+              Password
+            </label>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-4 py-3 text-[rgb(var(--color-text-primary))] outline-none focus:border-[rgb(var(--color-primary))]"
               placeholder="Enter password"
             />
           </div>
-          
+
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+            className="w-full rounded-xl bg-[rgb(var(--color-primary))] py-3 font-semibold text-white hover:opacity-90"
           >
             Sign In
           </button>
         </form>
-        
-        <p className="mt-6 text-center text-sm text-gray-600">
+
+        <p className="mt-6 text-center text-sm text-[rgb(var(--color-text-secondary))]">
           Don't have an account?{' '}
-          <Link to="/register" className="text-blue-600 font-semibold hover:underline">
+          <Link
+            to="/register"
+            className="font-semibold text-[rgb(var(--color-primary))] hover:opacity-80"
+          >
             Register here
           </Link>
         </p>
-        
+
         <p className="mt-4 text-center">
-          <Link to="/" className="text-sm text-gray-500 hover:text-gray-700">
+          <Link to="/" className="text-sm text-[rgb(var(--color-text-secondary))] hover:opacity-80">
             ← Back to Home
           </Link>
         </p>

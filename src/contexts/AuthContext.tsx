@@ -1,57 +1,24 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-
-export type UserRole = 
-  | 'customer' 
-  | 'staff' 
-  | 'technician' 
-  | 'vendor' 
-  | 'department_admin' 
-  | 'campus_admin' 
-  | 'super_admin'
-
-export interface User {
-  id: string
-  name: string
-  email: string
-  role: UserRole
-  department?: string
-}
-
-interface AuthContextType {
-  user: User | null
-  isAuthenticated: boolean
-  login: (email: string, password: string) => Promise<void>
-  register: (name: string, email: string, password: string, role: UserRole) => Promise<void>
-  logout: () => void
-  isLoading: boolean
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+import { useState, type ReactNode } from 'react'
+import { AuthContext } from './auth-store'
+import type { User, UserRole } from './authTypes'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // Check for stored user session on mount
+  const [user, setUser] = useState<User | null>(() => {
     const storedUser = localStorage.getItem('campus360_user')
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
-    }
-    setIsLoading(false)
-  }, [])
+    return storedUser ? (JSON.parse(storedUser) as User) : null
+  })
+  const [isLoading] = useState(false)
 
-  const login = async (email: string, password: string) => {
-    // Simulate API call
+  const login = async (email: string, password: string, role: UserRole = 'customer') => {
+    void password
     await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // Mock user data - replace with actual API call
+
     const mockUser: User = {
       id: '1',
-      name: 'Priya Sharma',
+      name: role === 'super_admin' ? 'Ashish Bharti' : 'Priya Sharma',
       email,
-      role: 'customer',
-      department: 'Computer Science',
+      role,
+      department: role === 'super_admin' ? 'Central Admin Dashboard' : 'Computer Science',
     }
     
     setUser(mockUser)
@@ -59,9 +26,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const register = async (name: string, email: string, password: string, role: UserRole) => {
-    // Simulate API call
+    void password
     await new Promise(resolve => setTimeout(resolve, 1000))
-    
+
     const newUser: User = {
       id: Date.now().toString(),
       name,
@@ -92,12 +59,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   )
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-  return context
 }
