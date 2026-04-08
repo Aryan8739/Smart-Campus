@@ -30,7 +30,7 @@ function TestLoginPage() {
           Gautam Buddha University
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
           <div>
             <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-text-primary))]">
               Email Address

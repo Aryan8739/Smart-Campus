@@ -33,7 +33,6 @@ import {
   VendorsPage,
 } from './features/userAccess'
 
-
 function App() {
   return (
     <AuthProvider>
@@ -44,6 +43,8 @@ function App() {
             <Route path="login" element={<TestLoginPage />} />
             <Route path="register" element={<TestRegisterPage />} />
             <Route path="docs" element={<DocumentationPage />} />
+            
+            {/* User Access Module with nested routes */}
             <Route path="user-access" element={<UserAccessPage />}>
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard" element={<DashboardPage />} />
@@ -60,7 +61,11 @@ function App() {
               <Route path="notifications" element={<NotificationCenterPage />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
+            
+            {/* Redirect old user-access route to new structure */}
             <Route path="modules/user-access" element={<Navigate to="/user-access/dashboard" replace />} />
+            
+            {/* Other module routes */}
             <Route path="modules/complaint-intake" element={<ComplaintIntakePage />} />
             <Route
               path="modules/customer-dashboard-advanced"
@@ -81,6 +86,8 @@ function App() {
               path="modules/resource-allocation-booking"
               element={<ResourceAllocationBookingPage />}
             />
+            
+            {/* Catch all */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
