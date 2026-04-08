@@ -140,14 +140,7 @@ function AppFooter() {
             <p className="text-xs font-semibold text-[rgb(var(--color-text-secondary))]">
               Visitors: {visitorCount.toLocaleString('en-IN')}
             </p>
-            <button
-              type="button"
-              className="mt-2 inline-flex items-center gap-2 rounded-lg bg-[rgb(var(--color-primary))] px-3 py-1.5 text-xs font-semibold text-white shadow-md shadow-[rgba(var(--color-primary),0.3)] transition-all hover:translate-y-[-1px] hover:bg-[rgb(var(--color-primary-hover))]"
-              aria-label="Open visitor escalation dashboard"
-            >
-              <Eye size={14} />
-              Visitor Escalation View
-            </button>
+            
           </div>
         </div>
       </div>
