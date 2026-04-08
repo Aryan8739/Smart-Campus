@@ -6,6 +6,7 @@ const navItems = [
   { label: 'Docs', to: '/docs' },
   { label: 'User Access', to: '/modules/user-access' },
   { label: 'Complaint Intake', to: '/modules/complaint-intake' },
+  { label: 'Customer Dashboard Advanced', to: '/modules/customer-dashboard-advanced' },
   { label: 'Assignment', to: '/modules/assignment' },
   { label: 'Technician Execution', to: '/modules/technician-execution' },
   { label: 'Notification Escalation', to: '/modules/notification-escalation' },
