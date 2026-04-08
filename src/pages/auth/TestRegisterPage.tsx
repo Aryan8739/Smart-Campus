@@ -7,20 +7,54 @@ function TestRegisterPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [role, setRole] = useState<UserRole>('customer')
+  const [error, setError] = useState('')
   const navigate = useNavigate()
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    // Store user in localStorage
-    const user = {
+    setError('')
+
+    // Validation
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters')
+      return
+    }
+
+    // Get existing users
+    const existingUsers = JSON.parse(localStorage.getItem('campus360_users') || '[]')
+
+    // Check if email already exists
+    if (existingUsers.some((u: any) => u.email === email)) {
+      setError('Email already registered. Please login.')
+      return
+    }
+
+    // Create new user
+    const newUser = {
       id: Date.now().toString(),
       name: name,
       email: email,
+      password: password, // In production, this should be hashed
       role: role,
       department: 'Computer Science'
     }
-    localStorage.setItem('campus360_user', JSON.stringify(user))
+
+    // Save to users list
+    existingUsers.push(newUser)
+    localStorage.setItem('campus360_users', JSON.stringify(existingUsers))
+
+    // Store current user (without password)
+    const { password: _, ...userWithoutPassword } = newUser
+    localStorage.setItem('campus360_user', JSON.stringify(userWithoutPassword))
+
+    // Redirect to home
     navigate('/')
   }
 
@@ -33,6 +67,12 @@ function TestRegisterPage() {
         <h2 className="text-2xl font-bold mb-6">Create Account</h2>
         
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-medium mb-2">Full Name</label>
             <input
@@ -80,6 +120,19 @@ function TestRegisterPage() {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter password (min 6 characters)"
+              minLength={6}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Confirm Password</label>
+            <input
+              type="password"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Re-enter password"
               minLength={6}
             />
           </div>

@@ -4,20 +4,43 @@ import { Link, useNavigate } from 'react-router-dom'
 function TestLoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
   const navigate = useNavigate()
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    // Store user in localStorage
-    const user = {
-      id: '1',
-      name: 'Priya Sharma',
-      email: email,
-      role: 'customer',
-      department: 'Computer Science'
+    setError('')
+
+    // Demo account credentials
+    const demoEmail = 'rahul.kumar@gbu.ac.in'
+    const demoPassword = 'password123'
+
+    // Check if using demo account
+    if (email === demoEmail && password === demoPassword) {
+      const user = {
+        id: 'demo1',
+        name: 'Rahul Kumar',
+        email: email,
+        role: 'customer',
+        department: 'Computer Science'
+      }
+      localStorage.setItem('campus360_user', JSON.stringify(user))
+      navigate('/')
+      return
     }
-    localStorage.setItem('campus360_user', JSON.stringify(user))
-    navigate('/')
+
+    // Check registered users
+    const registeredUsers = JSON.parse(localStorage.getItem('campus360_users') || '[]')
+    const foundUser = registeredUsers.find((u: any) => u.email === email && u.password === password)
+
+    if (foundUser) {
+      // Store current user (without password)
+      const { password: _, ...userWithoutPassword } = foundUser
+      localStorage.setItem('campus360_user', JSON.stringify(userWithoutPassword))
+      navigate('/')
+    } else {
+      setError('Invalid email or password. Try demo account: rahul.kumar@gbu.ac.in / password123')
+    }
   }
 
   return (
@@ -27,8 +50,21 @@ function TestLoginPage() {
         <p className="text-center text-gray-600 mb-8">Gautam Buddha University</p>
         
         <h2 className="text-2xl font-bold mb-6">Welcome Back</h2>
+
+        {/* Demo Account Info */}
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm font-semibold text-blue-800 mb-2">Demo Account:</p>
+          <p className="text-sm text-blue-700">Email: <span className="font-mono">rahul.kumar@gbu.ac.in</span></p>
+          <p className="text-sm text-blue-700">Password: <span className="font-mono">password123</span></p>
+        </div>
         
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-medium mb-2">Email Address</label>
             <input
