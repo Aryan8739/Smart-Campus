@@ -3,13 +3,17 @@ import { Link, NavLink } from 'react-router-dom'
 import {
   ChevronDown,
   ChevronUp,
+  LogIn,
+  LogOut,
   Menu,
   Moon,
   ShieldCheck,
   Sun,
+  UserCog,
   Workflow,
   X,
 } from 'lucide-react'
+import { useAuth } from '../contexts/useAuth'
 
 type SimpleNavItem = {
   label: string
@@ -46,7 +50,7 @@ const dropdownNav: DropdownNavItem[] = [
     label: 'Governance',
     icon: ShieldCheck,
     items: [
-      { label: 'User Access', to: '/modules/user-access' },
+      { label: 'User Access', to: '/user-access/dashboard' },
       { label: 'Inventory', to: '/modules/inventory' },
       { label: 'Billing', to: '/modules/billing' },
       { label: 'Feedback Rating', to: '/modules/feedback-rating' },
@@ -57,6 +61,7 @@ const dropdownNav: DropdownNavItem[] = [
 ]
 
 function AppHeader() {
+  const { isAuthenticated, logout } = useAuth()
   const [isDark, setIsDark] = useState(false)
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
@@ -103,12 +108,16 @@ function AppHeader() {
     <header className="sticky top-0 z-50 border-b border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))]/95 backdrop-blur-md">
     
 
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 md:px-8">
-        <Link to="/" className="flex min-w-0 items-center gap-3">
-          <img src="/gbuLogo.png" alt="logo" className='h-16' />
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:px-4 md:px-8">
+        <Link to="/" className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+          <img
+            src="/gbuLogo.png"
+            alt="GBU logo"
+            className="h-10 w-auto shrink-0 object-contain sm:h-12 md:h-14"
+          />
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold md:text-base">Smart Campus Portal</p>
-            <p className="truncate text-xs text-[rgb(var(--color-text-secondary))] md:text-sm">
+            <p className="truncate text-xs font-semibold sm:text-sm md:text-base">Smart Campus Portal</p>
+            <p className="truncate text-[11px] text-[rgb(var(--color-text-secondary))] sm:text-xs md:text-sm">
               Service, Governance and Campus Ops
             </p>
           </div>
@@ -138,12 +147,12 @@ function AppHeader() {
               <div
                 key={group.key}
                 className="relative"
+                onMouseEnter={() => setActiveMenu(group.key)}
                 onMouseLeave={() => setActiveMenu((current) => (current === group.key ? null : current))}
               >
                 <button
                   type="button"
                   onClick={() => setActiveMenu((current) => (current === group.key ? null : group.key))}
-                  onMouseEnter={() => setActiveMenu(group.key)}
                   className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-[rgb(var(--color-text-primary))] hover:bg-[rgba(var(--color-primary),0.08)]"
                   aria-expanded={activeMenu === group.key}
                 >
@@ -153,7 +162,7 @@ function AppHeader() {
                 </button>
 
                 {activeMenu === group.key && (
-                  <div className="absolute left-0 top-full z-30 mt-2 min-w-72 rounded-2xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-2 shadow-2xl shadow-black/10">
+                  <div className="absolute left-0 top-full z-30 min-w-72 rounded-2xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-2 shadow-2xl shadow-black/10">
                     {group.items.map((item) => (
                       <NavLink
                         key={item.to}
@@ -179,6 +188,35 @@ function AppHeader() {
         </div>
 
         <div className="relative flex items-center gap-2">
+          {!isAuthenticated ? (
+            <Link
+              to="/login"
+              state={{ from: { pathname: '/user-access/dashboard' } }}
+              className="hidden items-center gap-1.5 rounded-xl bg-[rgb(var(--color-primary))] px-3 py-2 text-sm font-semibold text-white shadow-md shadow-[rgba(var(--color-primary),0.28)] hover:opacity-90 md:inline-flex"
+            >
+              <LogIn size={16} />
+              Login
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="/user-access/dashboard"
+                className="hidden items-center gap-1.5 rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-2 text-sm font-semibold text-[rgb(var(--color-text-primary))] hover:bg-[rgba(var(--color-primary),0.1)] md:inline-flex"
+              >
+                <UserCog size={16} />
+                User Access
+              </Link>
+              <button
+                type="button"
+                onClick={logout}
+                className="hidden items-center gap-1.5 rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-2 text-sm font-semibold text-[rgb(var(--color-text-primary))] hover:bg-[rgba(var(--color-primary),0.1)] md:inline-flex"
+              >
+                <LogOut size={16} />
+                Logout
+              </button>
+            </>
+          )}
+
           <button
             type="button"
             onClick={toggleTheme}
@@ -223,6 +261,45 @@ function AppHeader() {
                 {item.label}
               </NavLink>
             ))}
+
+            {!isAuthenticated ? (
+              <Link
+                to="/login"
+                state={{ from: { pathname: '/user-access/dashboard' } }}
+                className="flex items-center justify-center gap-2 rounded-xl bg-[rgb(var(--color-primary))] px-3 py-2 text-sm font-semibold text-white"
+                onClick={() => setIsMobileOpen(false)}
+              >
+                <LogIn size={15} />
+                Login for User Access
+              </Link>
+            ) : (
+              <>
+                <NavLink
+                  to="/user-access/dashboard"
+                  className={({ isActive }) =>
+                    [
+                      'block rounded-xl px-3 py-2 text-sm font-semibold',
+                      isActive
+                        ? 'bg-[rgb(var(--color-primary))] text-white'
+                        : 'bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text-primary))]',
+                    ].join(' ')
+                  }
+                  onClick={() => setIsMobileOpen(false)}
+                >
+                  User Access Dashboard
+                </NavLink>
+                <button
+                  type="button"
+                  onClick={() => {
+                    logout()
+                    setIsMobileOpen(false)
+                  }}
+                  className="block w-full rounded-xl border border-[rgb(var(--color-border))] px-3 py-2 text-left text-sm font-semibold text-[rgb(var(--color-text-primary))]"
+                >
+                  Logout
+                </button>
+              </>
+            )}
 
             {dropdownNav.map((group) => {
               const Icon = group.icon

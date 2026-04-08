@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import type { UserRole } from '../../contexts/authTypes'
 import { useAuth } from '../../contexts/useAuth'
 import { getDefaultRouteForRole } from '../../utils/navigation'
@@ -9,17 +9,24 @@ function TestLoginPage() {
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<UserRole>('super_admin')
   const navigate = useNavigate()
+  const location = useLocation()
   const { login } = useAuth()
+
+  const redirectPath =
+    (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ??
+    getDefaultRouteForRole(role)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     await login(email, password, role)
-    navigate(getDefaultRouteForRole(role))
+    navigate(redirectPath)
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[rgb(var(--color-bg))] px-4 py-10">
-      <div className="w-full max-w-md rounded-[1.75rem] border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-8 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.55)]">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[rgb(var(--color-bg))] px-4 py-10">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(var(--color-primary),0.14),transparent_45%),radial-gradient(circle_at_bottom_left,rgba(var(--color-accent),0.12),transparent_40%)]" />
+
+      <div className="relative w-full max-w-md rounded-[1.75rem] border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-8 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.55)]">
         <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-[rgb(var(--color-primary))]">
           CAMPUS360
         </p>
@@ -29,6 +36,7 @@ function TestLoginPage() {
         <p className="mt-2 text-center text-sm text-[rgb(var(--color-text-secondary))]">
           Gautam Buddha University
         </p>
+    
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
           <div>
@@ -86,6 +94,8 @@ function TestLoginPage() {
             Sign In
           </button>
         </form>
+
+    
 
         <p className="mt-6 text-center text-sm text-[rgb(var(--color-text-secondary))]">
           Don't have an account?{' '}

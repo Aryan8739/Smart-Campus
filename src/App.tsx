@@ -1,10 +1,12 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import AppLayout from './layouts/AppLayout'
+import ProtectedRoute from './components/ProtectedRoute'
 import DocumentationPage from './pages/Documentation'
 import HomePage from './pages/HomePage'
 import TestLoginPage from './pages/auth/TestLoginPage'
 import TestRegisterPage from './pages/auth/TestRegisterPage'
+import RoleDashboardPage from './pages/RoleDashboardPage'
 import AnalyticsPage from './pages/modules/AnalyticsPage'
 import AssignmentPage from './pages/modules/AssignmentPage'
 import AuditCompliancePage from './pages/modules/AuditCompliancePage'
@@ -43,9 +45,27 @@ function App() {
             <Route path="login" element={<TestLoginPage />} />
             <Route path="register" element={<TestRegisterPage />} />
             <Route path="docs" element={<DocumentationPage />} />
+            <Route
+              path="role-dashboard"
+              element={
+                <ProtectedRoute>
+                  <RoleDashboardPage />
+                </ProtectedRoute>
+              }
+            />
             
             {/* User Access Module with nested routes */}
-            <Route path="user-access" element={<UserAccessPage />}>
+            <Route
+              path="user-access"
+              element={
+                <ProtectedRoute
+                  allowedRoles={['super_admin']}
+                  unauthorizedRedirectTo="/role-dashboard"
+                >
+                  <UserAccessPage />
+                </ProtectedRoute>
+              }
+            >
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="users" element={<UserManagementPage />} />

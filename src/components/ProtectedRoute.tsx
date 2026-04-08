@@ -1,14 +1,16 @@
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import type { UserRole } from '../contexts/authTypes'
 import { useAuth } from '../contexts/useAuth'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
   allowedRoles?: UserRole[]
+  unauthorizedRedirectTo?: string
 }
 
-function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
+function ProtectedRoute({ children, allowedRoles, unauthorizedRedirectTo }: ProtectedRouteProps) {
   const { isAuthenticated, user, isLoading } = useAuth()
+  const location = useLocation()
 
   if (isLoading) {
     return (
@@ -22,10 +24,14 @@ function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/login" replace state={{ from: location }} />
   }
 
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+    if (unauthorizedRedirectTo) {
+      return <Navigate to={unauthorizedRedirectTo} replace />
+    }
+
     return (
       <div className="flex min-h-screen items-center justify-center bg-[rgb(var(--color-bg))] px-4">
         <div className="text-center">
