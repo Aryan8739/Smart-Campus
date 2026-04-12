@@ -1,11 +1,18 @@
+import { useMemo, useState } from 'react'
 import type { VendorTicket } from '../types'
 
 type SlaTabProps = {
   tickets: VendorTicket[]
+  onEscalate: (ticketId: string) => void
 }
 
-function SlaTab({ tickets }: SlaTabProps) {
-  const riskTickets = tickets.filter((ticket) => ticket.slaHoursLeft <= 8)
+function SlaTab({ tickets, onEscalate }: SlaTabProps) {
+  const [threshold, setThreshold] = useState(8)
+
+  const riskTickets = useMemo(
+    () => tickets.filter((ticket) => ticket.slaHoursLeft <= threshold && ticket.status !== 'Resolved'),
+    [threshold, tickets],
+  )
 
   return (
     <section className="space-y-5">
@@ -14,6 +21,19 @@ function SlaTab({ tickets }: SlaTabProps) {
         <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
           Pre-breach warning visibility with actionable risk queue.
         </p>
+
+        <div className="mt-3 flex items-center gap-2 text-xs">
+          <span className="text-[rgb(var(--color-text-secondary))]">Risk threshold</span>
+          <select
+            value={threshold}
+            onChange={(event) => setThreshold(Number(event.target.value))}
+            className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-2 py-1"
+          >
+            <option value={4}>4h</option>
+            <option value={8}>8h</option>
+            <option value={12}>12h</option>
+          </select>
+        </div>
       </header>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -42,7 +62,22 @@ function SlaTab({ tickets }: SlaTabProps) {
                 key={ticket.id}
                 className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-2"
               >
-                <p className="text-xs font-semibold text-[rgb(var(--color-text-primary))]">{ticket.id} - {ticket.title}</p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold text-[rgb(var(--color-text-primary))]">{ticket.id} - {ticket.title}</p>
+                  {ticket.status !== 'Escalated' ? (
+                    <button
+                      type="button"
+                      onClick={() => onEscalate(ticket.id)}
+                      className="rounded-md bg-[rgb(var(--color-danger))] px-2 py-1 text-[10px] font-semibold text-white"
+                    >
+                      Escalate
+                    </button>
+                  ) : (
+                    <span className="rounded-full bg-[rgb(var(--color-accent))/0.15] px-2 py-1 text-[10px] font-semibold text-[rgb(var(--color-accent))]">
+                      Escalated
+                    </span>
+                  )}
+                </div>
                 <p className="mt-1 text-xs text-[rgb(var(--color-text-secondary))]">
                   {ticket.location} | {ticket.status} | SLA left: {ticket.slaHoursLeft}h
                 </p>

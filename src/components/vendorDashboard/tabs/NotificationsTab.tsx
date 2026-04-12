@@ -1,12 +1,23 @@
+import { useMemo, useState } from 'react'
 import type { VendorNotification } from '../types'
 
 type NotificationsTabProps = {
   notifications: VendorNotification[]
   onMarkRead: (id: string) => void
   onMarkAllRead: () => void
+  onClearRead: () => void
 }
 
-function NotificationsTab({ notifications, onMarkRead, onMarkAllRead }: NotificationsTabProps) {
+function NotificationsTab({ notifications, onMarkRead, onMarkAllRead, onClearRead }: NotificationsTabProps) {
+  const [severityFilter, setSeverityFilter] = useState<'all' | VendorNotification['severity']>('all')
+  const filtered = useMemo(
+    () =>
+      severityFilter === 'all'
+        ? notifications
+        : notifications.filter((item) => item.severity === severityFilter),
+    [notifications, severityFilter],
+  )
+
   return (
     <section className="space-y-5">
       <header className="rounded-3xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-6 shadow-sm">
@@ -14,18 +25,37 @@ function NotificationsTab({ notifications, onMarkRead, onMarkAllRead }: Notifica
         <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
           Assignment alerts, escalation warnings, and settlement updates.
         </p>
-        <button
-          type="button"
-          onClick={onMarkAllRead}
-          className="mt-3 rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-1.5 text-xs font-semibold"
-        >
-          Mark all read
-        </button>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <select
+            value={severityFilter}
+            onChange={(event) => setSeverityFilter(event.target.value as 'all' | VendorNotification['severity'])}
+            className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-2 py-1.5 text-xs"
+          >
+            <option value="all">All severity</option>
+            <option value="warning">Warning</option>
+            <option value="info">Info</option>
+            <option value="success">Success</option>
+          </select>
+          <button
+            type="button"
+            onClick={onMarkAllRead}
+            className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-1.5 text-xs font-semibold"
+          >
+            Mark all read
+          </button>
+          <button
+            type="button"
+            onClick={onClearRead}
+            className="rounded-lg bg-[rgb(var(--color-primary))] px-3 py-1.5 text-xs font-semibold text-white"
+          >
+            Clear read
+          </button>
+        </div>
       </header>
 
       <article className="rounded-3xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-5 shadow-sm">
         <div className="space-y-2.5">
-          {notifications.map((item) => (
+          {filtered.map((item) => (
             <div
               key={item.id}
               className={[
@@ -56,6 +86,12 @@ function NotificationsTab({ notifications, onMarkRead, onMarkAllRead }: Notifica
               <p className="mt-1 text-[11px] text-[rgb(var(--color-text-secondary))]">{item.at}</p>
             </div>
           ))}
+
+          {filtered.length === 0 ? (
+            <p className="rounded-xl border border-dashed border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-3 text-xs text-[rgb(var(--color-text-secondary))]">
+              No notifications in selected filter.
+            </p>
+          ) : null}
         </div>
       </article>
     </section>

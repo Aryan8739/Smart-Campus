@@ -15,6 +15,7 @@ type ProfileTabProps = {
   onSettlementAlertsChange: (value: boolean) => void
   onSlaAlertsChange: (value: boolean) => void
   onSave: () => void
+  onReset: () => void
 }
 
 function ProfileTab({
@@ -26,6 +27,7 @@ function ProfileTab({
   onSettlementAlertsChange,
   onSlaAlertsChange,
   onSave,
+  onReset,
 }: ProfileTabProps) {
   return (
     <section className="space-y-5">
@@ -37,6 +39,18 @@ function ProfileTab({
       </header>
 
       <article className="rounded-3xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-5 shadow-sm">
+        <div className="mb-3 grid gap-2 sm:grid-cols-3">
+          <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-3 text-xs text-[rgb(var(--color-text-secondary))]">
+            Alert Coverage: <span className="font-semibold text-[rgb(var(--color-text-primary))]">{settlementAlerts || slaAlerts ? 'Enabled' : 'Disabled'}</span>
+          </div>
+          <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-3 text-xs text-[rgb(var(--color-text-secondary))]">
+            Contact Channel: <span className="font-semibold text-[rgb(var(--color-text-primary))]">Email + Phone</span>
+          </div>
+          <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-3 text-xs text-[rgb(var(--color-text-secondary))]">
+            Account State: <span className="font-semibold text-[rgb(var(--color-success))]">Active</span>
+          </div>
+        </div>
+
         <div className="grid gap-3 md:grid-cols-2">
           <div>
             <label className="text-xs font-semibold uppercase tracking-wide text-[rgb(var(--color-text-secondary))]">
@@ -117,13 +131,22 @@ function ProfileTab({
 
         {message ? <p className="mt-3 text-xs font-semibold text-[rgb(var(--color-success))]">{message}</p> : null}
 
-        <button
-          type="button"
-          onClick={onSave}
-          className="mt-4 rounded-lg bg-[rgb(var(--color-primary))] px-4 py-2 text-xs font-semibold text-white"
-        >
-          Save Profile Settings
-        </button>
+        <div className="mt-4 flex gap-2">
+          <button
+            type="button"
+            onClick={onSave}
+            className="rounded-lg bg-[rgb(var(--color-primary))] px-4 py-2 text-xs font-semibold text-white"
+          >
+            Save Profile Settings
+          </button>
+          <button
+            type="button"
+            onClick={onReset}
+            className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-4 py-2 text-xs font-semibold"
+          >
+            Reset Changes
+          </button>
+        </div>
       </article>
     </section>
   )

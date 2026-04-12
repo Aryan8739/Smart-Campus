@@ -1,11 +1,23 @@
+import { useMemo, useState } from 'react'
 import type { VendorInvoice } from '../types'
 
 type SettlementsTabProps = {
   invoices: VendorInvoice[]
   onSubmitInvoice: (invoiceId: string) => void
+  onApproveInvoice: (invoiceId: string) => void
+  onMarkPaid: (invoiceId: string) => void
 }
 
-function SettlementsTab({ invoices, onSubmitInvoice }: SettlementsTabProps) {
+function SettlementsTab({ invoices, onSubmitInvoice, onApproveInvoice, onMarkPaid }: SettlementsTabProps) {
+  const [statusFilter, setStatusFilter] = useState<'All' | VendorInvoice['status']>('All')
+  const filteredInvoices = useMemo(
+    () =>
+      statusFilter === 'All'
+        ? invoices
+        : invoices.filter((invoice) => invoice.status === statusFilter),
+    [invoices, statusFilter],
+  )
+
   const totalApproved = invoices.reduce((sum, item) => sum + item.approvedAmount, 0)
 
   return (
@@ -35,9 +47,22 @@ function SettlementsTab({ invoices, onSubmitInvoice }: SettlementsTabProps) {
       </div>
 
       <article className="rounded-3xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-5 shadow-sm">
-        <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Settlement Pipeline</h3>
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Settlement Pipeline</h3>
+          <select
+            value={statusFilter}
+            onChange={(event) => setStatusFilter(event.target.value as 'All' | VendorInvoice['status'])}
+            className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-2 py-1.5 text-xs"
+          >
+            <option value="All">All status</option>
+            <option value="Draft">Draft</option>
+            <option value="Submitted">Submitted</option>
+            <option value="Approved">Approved</option>
+            <option value="Paid">Paid</option>
+          </select>
+        </div>
         <div className="mt-3 space-y-2.5">
-          {invoices.map((invoice) => (
+          {filteredInvoices.map((invoice) => (
             <div key={invoice.id} className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-3">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-xs font-semibold text-[rgb(var(--color-text-primary))]">{invoice.id}</p>
@@ -62,17 +87,43 @@ function SettlementsTab({ invoices, onSubmitInvoice }: SettlementsTabProps) {
               </p>
               <p className="mt-1 text-xs text-[rgb(var(--color-text-secondary))]">ETA: {invoice.settlementEta}</p>
 
-              {invoice.status === 'Draft' ? (
-                <button
-                  type="button"
-                  onClick={() => onSubmitInvoice(invoice.id)}
-                  className="mt-2 rounded-md bg-[rgb(var(--color-primary))] px-2.5 py-1.5 text-[11px] font-semibold text-white"
-                >
-                  Submit Invoice
-                </button>
-              ) : null}
+              <div className="mt-2 flex flex-wrap gap-2">
+                {invoice.status === 'Draft' ? (
+                  <button
+                    type="button"
+                    onClick={() => onSubmitInvoice(invoice.id)}
+                    className="rounded-md bg-[rgb(var(--color-primary))] px-2.5 py-1.5 text-[11px] font-semibold text-white"
+                  >
+                    Submit Invoice
+                  </button>
+                ) : null}
+                {invoice.status === 'Submitted' ? (
+                  <button
+                    type="button"
+                    onClick={() => onApproveInvoice(invoice.id)}
+                    className="rounded-md border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] px-2.5 py-1.5 text-[11px] font-semibold"
+                  >
+                    Mark Approved
+                  </button>
+                ) : null}
+                {invoice.status === 'Approved' ? (
+                  <button
+                    type="button"
+                    onClick={() => onMarkPaid(invoice.id)}
+                    className="rounded-md bg-[rgb(var(--color-success))] px-2.5 py-1.5 text-[11px] font-semibold text-white"
+                  >
+                    Mark Paid
+                  </button>
+                ) : null}
+              </div>
             </div>
           ))}
+
+          {filteredInvoices.length === 0 ? (
+            <p className="rounded-xl border border-dashed border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-3 text-xs text-[rgb(var(--color-text-secondary))]">
+              No invoices in selected status.
+            </p>
+          ) : null}
         </div>
       </article>
     </section>

@@ -122,6 +122,14 @@ function VendorDashboardPage() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
+  const defaultProfile = {
+    managerName: user?.name ?? 'Vendor Manager',
+    companyName: 'XY Facilities Pvt Ltd',
+    email: user?.email ?? 'vendor@gbu.ac.in',
+    phone: '+91-9810011122',
+    operatingZones: 'Academic Block, Library, North Gate',
+  }
+
   const [activeTab, setActiveTab] = useState<VendorDashboardTab>('overview')
 
   const [tickets, setTickets] = useState<VendorTicket[]>(initialTickets)
@@ -134,13 +142,7 @@ function VendorDashboardPage() {
   const [assignmentNote, setAssignmentNote] = useState('')
   const [assignmentMessage, setAssignmentMessage] = useState('')
 
-  const [profile, setProfile] = useState({
-    managerName: user?.name ?? 'Vendor Manager',
-    companyName: 'XY Facilities Pvt Ltd',
-    email: user?.email ?? 'vendor@gbu.ac.in',
-    phone: '+91-9810011122',
-    operatingZones: 'Academic Block, Library, North Gate',
-  })
+  const [profile, setProfile] = useState(defaultProfile)
   const [settlementAlerts, setSettlementAlerts] = useState(true)
   const [slaAlerts, setSlaAlerts] = useState(true)
   const [profileMessage, setProfileMessage] = useState('')
@@ -321,6 +323,39 @@ function VendorDashboardPage() {
     pushNotification('Invoice submitted', `${invoiceId} sent for finance approval.`, 'success')
   }
 
+  const approveInvoice = (invoiceId: string) => {
+    setInvoices((prev) =>
+      prev.map((invoice) =>
+        invoice.id === invoiceId ? { ...invoice, status: 'Approved', settlementEta: '2 days' } : invoice,
+      ),
+    )
+    pushNotification('Invoice approved', `${invoiceId} approved by finance desk.`, 'info')
+  }
+
+  const markInvoicePaid = (invoiceId: string) => {
+    setInvoices((prev) =>
+      prev.map((invoice) =>
+        invoice.id === invoiceId ? { ...invoice, status: 'Paid', settlementEta: 'Settled' } : invoice,
+      ),
+    )
+    pushNotification('Settlement complete', `${invoiceId} marked as paid.`, 'success')
+  }
+
+  const escalateTicket = (ticketId: string) => {
+    setTickets((prev) =>
+      prev.map((ticket) =>
+        ticket.id === ticketId
+          ? {
+              ...ticket,
+              status: 'Escalated',
+              updatedAt: nowStamp(),
+            }
+          : ticket,
+      ),
+    )
+    pushNotification('Ticket escalated', `${ticketId} moved to escalation queue.`, 'warning')
+  }
+
   const markNotificationRead = (id: string) => {
     setNotifications((prev) =>
       prev.map((item) => (item.id === id ? { ...item, isRead: true } : item)),
@@ -331,9 +366,20 @@ function VendorDashboardPage() {
     setNotifications((prev) => prev.map((item) => ({ ...item, isRead: true })))
   }
 
+  const clearReadNotifications = () => {
+    setNotifications((prev) => prev.filter((item) => !item.isRead))
+  }
+
   const saveProfile = () => {
     setProfileMessage('Vendor profile preferences saved successfully.')
     pushNotification('Profile updated', 'Vendor account preferences were saved.', 'info')
+  }
+
+  const resetProfile = () => {
+    setProfile(defaultProfile)
+    setSettlementAlerts(true)
+    setSlaAlerts(true)
+    setProfileMessage('Profile preferences reset to default values.')
   }
 
   const content = (() => {
@@ -372,15 +418,23 @@ function VendorDashboardPage() {
           />
         )
       case 'sla':
-        return <SlaTab tickets={tickets} />
+        return <SlaTab tickets={tickets} onEscalate={escalateTicket} />
       case 'settlements':
-        return <SettlementsTab invoices={invoices} onSubmitInvoice={submitInvoice} />
+        return (
+          <SettlementsTab
+            invoices={invoices}
+            onSubmitInvoice={submitInvoice}
+            onApproveInvoice={approveInvoice}
+            onMarkPaid={markInvoicePaid}
+          />
+        )
       case 'notifications':
         return (
           <NotificationsTab
             notifications={notifications}
             onMarkRead={markNotificationRead}
             onMarkAllRead={markAllRead}
+            onClearRead={clearReadNotifications}
           />
         )
       case 'profile':
@@ -403,6 +457,7 @@ function VendorDashboardPage() {
               setProfileMessage('')
             }}
             onSave={saveProfile}
+            onReset={resetProfile}
           />
         )
       default:

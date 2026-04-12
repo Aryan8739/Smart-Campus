@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react'
 import { ticketPriorityTone, ticketStatusTone } from '../types'
 import type { VendorTechnician, VendorTicket } from '../types'
 
@@ -28,6 +29,25 @@ function AssignmentsTab({
   onAssign,
   onAutoAssign,
 }: AssignmentsTabProps) {
+  const [searchText, setSearchText] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'all' | VendorTicket['status']>('all')
+
+  const filteredTickets = useMemo(
+    () =>
+      tickets.filter((ticket) => {
+        const statusMatched = statusFilter === 'all' || ticket.status === statusFilter
+        const searchMatched =
+          searchText.trim() === '' ||
+          ticket.id.toLowerCase().includes(searchText.toLowerCase()) ||
+          ticket.title.toLowerCase().includes(searchText.toLowerCase()) ||
+          ticket.location.toLowerCase().includes(searchText.toLowerCase())
+        return statusMatched && searchMatched
+      }),
+    [searchText, statusFilter, tickets],
+  )
+
+  const selectedTicket = tickets.find((ticket) => ticket.id === selectedTicketId) ?? null
+
   return (
     <section className="space-y-5">
       <header className="rounded-3xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-6 shadow-sm">
@@ -39,9 +59,35 @@ function AssignmentsTab({
 
       <div className="grid gap-5 xl:grid-cols-[1.35fr_1fr]">
         <article className="rounded-3xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-5 shadow-sm">
-          <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Open Assignment Queue</h3>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Open Assignment Queue</h3>
+            <span className="rounded-full border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-2.5 py-1 text-[10px] font-semibold text-[rgb(var(--color-text-secondary))]">
+              {filteredTickets.length} of {tickets.length}
+            </span>
+          </div>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            <input
+              value={searchText}
+              onChange={(event) => setSearchText(event.target.value)}
+              placeholder="Search by ticket, title, location"
+              className="min-w-52 rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-2 text-xs"
+            />
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value as 'all' | VendorTicket['status'])}
+              className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-2 text-xs"
+            >
+              <option value="all">All status</option>
+              <option value="Unassigned">Unassigned</option>
+              <option value="Assigned">Assigned</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Escalated">Escalated</option>
+            </select>
+          </div>
+
           <div className="mt-3 space-y-2.5">
-            {tickets.map((ticket) => (
+            {filteredTickets.map((ticket) => (
               <button
                 key={ticket.id}
                 type="button"
@@ -66,12 +112,27 @@ function AssignmentsTab({
                 </p>
               </button>
             ))}
+
+            {filteredTickets.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-3 text-xs text-[rgb(var(--color-text-secondary))]">
+                No tickets match current search/filter.
+              </p>
+            ) : null}
           </div>
         </article>
 
         <article className="rounded-3xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-5 shadow-sm">
           <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Assignment Controls</h3>
           <p className="mt-1 text-xs text-[rgb(var(--color-text-secondary))]">Selected ticket: {selectedTicketId || 'None'}</p>
+
+          {selectedTicket ? (
+            <div className="mt-3 rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-3 text-xs text-[rgb(var(--color-text-secondary))]">
+              <p className="font-semibold text-[rgb(var(--color-text-primary))]">{selectedTicket.title}</p>
+              <p className="mt-1">Category: {selectedTicket.category}</p>
+              <p>SLA left: {selectedTicket.slaHoursLeft}h</p>
+              <p>Location: {selectedTicket.location}</p>
+            </div>
+          ) : null}
 
           <select
             value={selectedTechnicianId}
