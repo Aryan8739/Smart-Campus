@@ -15,6 +15,7 @@ type WorkspaceTabProps = {
   onFeedbackCommentChange: (value: string) => void
   onSubmitFeedback: () => void
   onReopen: () => void
+  onCopyComplaintId: () => void
 }
 
 function WorkspaceTab({
@@ -31,6 +32,7 @@ function WorkspaceTab({
   onFeedbackCommentChange,
   onSubmitFeedback,
   onReopen,
+  onCopyComplaintId,
 }: WorkspaceTabProps) {
   return (
     <section className="rounded-3xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-6 shadow-sm">
@@ -72,6 +74,16 @@ function WorkspaceTab({
               <p>
                 <span className="font-semibold text-[rgb(var(--color-text-primary))]">Invoice:</span> {complaint.invoiceStatus}
               </p>
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={onCopyComplaintId}
+                className="rounded-md border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] px-2.5 py-1.5 text-[11px] font-semibold"
+              >
+                Copy Complaint ID
+              </button>
             </div>
 
             <div className="mt-4">

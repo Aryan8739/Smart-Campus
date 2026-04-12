@@ -4,7 +4,9 @@ import {
   ClipboardList,
   FilePlus2,
   LayoutDashboard,
+  LogOut,
   Receipt,
+  Users,
   UserCircle2,
   Workflow,
 } from 'lucide-react'
@@ -19,6 +21,12 @@ type SidebarProps = {
     notifications: number
     pendingInvoices: number
   }
+  userInfo: {
+    name: string
+    profileImage?: string
+  }
+  onProfileClick?: () => void
+  onLogout: () => void
 }
 
 const tabItems: Array<{
@@ -49,27 +57,23 @@ function CounterPill({ value }: { value: number }) {
   )
 }
 
-function CustomerSidebar({ activeTab, onTabChange, counts }: SidebarProps) {
+function CustomerSidebar({
+  activeTab,
+  onTabChange,
+  counts,
+  userInfo,
+  onProfileClick,
+  onLogout,
+}: SidebarProps) {
   return (
-    <aside className="rounded-3xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-4 shadow-[0_22px_50px_-40px_rgba(15,23,42,0.75)] lg:sticky lg:top-6 lg:h-fit">
+    <aside className="flex min-h-screen flex-col rounded-3xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-4 shadow-[0_22px_50px_-40px_rgba(15,23,42,0.75)] lg:sticky lg:top-4 lg:min-h-0 lg:h-[calc(100vh-2rem)] lg:overflow-hidden">
       <div className="rounded-2xl border border-[rgb(var(--color-border))] bg-[linear-gradient(145deg,rgb(var(--color-primary)/0.12),rgb(var(--color-card)/0.95))] p-4">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--color-primary))]">
           Customer Console
         </p>
         <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
-          Modern service dashboard with focused workflows.
+          Modern service dashboard
         </p>
-      </div>
-
-      <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-        <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-2.5">
-          <p className="text-[rgb(var(--color-text-secondary))]">Complaints</p>
-          <p className="mt-1 text-lg font-semibold text-[rgb(var(--color-text-primary))]">{counts.complaints}</p>
-        </div>
-        <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-2.5">
-          <p className="text-[rgb(var(--color-text-secondary))]">Open</p>
-          <p className="mt-1 text-lg font-semibold text-[rgb(var(--color-danger))]">{counts.open}</p>
-        </div>
       </div>
 
       <nav className="mt-4 space-y-1.5">
@@ -117,6 +121,47 @@ function CustomerSidebar({ activeTab, onTabChange, counts }: SidebarProps) {
           )
         })}
       </nav>
+
+      <div className="mt-auto pt-5">
+        <div className="flex items-center justify-between rounded-2xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-3">
+          <button
+            type="button"
+            onClick={() => {
+              if (onProfileClick) onProfileClick()
+            }}
+            className="group flex min-w-0 items-center gap-2 rounded-xl px-1 py-1 text-left transition hover:bg-[rgb(var(--color-card))]"
+            title="Open profile"
+          >
+            {userInfo.profileImage ? (
+              <img
+                src={userInfo.profileImage}
+                alt={userInfo.name}
+                className="h-9 w-9 shrink-0 rounded-full border border-slate-300 object-cover"
+              />
+            ) : (
+              <div className="rounded-full border border-indigo-100 bg-indigo-50 p-2.5">
+                <Users className="h-4 w-4 text-indigo-600" />
+              </div>
+            )}
+
+            <span className="min-w-0">
+              <span className="block truncate text-xs font-semibold text-[rgb(var(--color-text-primary))]">{userInfo.name}</span>
+              <span className="block text-[11px] text-[rgb(var(--color-text-secondary))]">Customer account</span>
+            </span>
+          </button>
+
+          <div className="pl-2">
+            <button
+              type="button"
+              onClick={onLogout}
+              className="group rounded-full border border-slate-200 p-2.5 transition-colors hover:bg-rose-600"
+              title="Logout"
+            >
+              <LogOut className="h-4 w-4 text-slate-500 group-hover:text-white" />
+            </button>
+          </div>
+        </div>
+      </div>
     </aside>
   )
 }

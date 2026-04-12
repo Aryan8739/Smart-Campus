@@ -31,14 +31,17 @@ export type NotificationItem = {
   detail: string
   at: string
   severity: 'info' | 'warning' | 'success'
+  isRead: boolean
 }
 
 export type InvoiceSummary = {
   id: string
   complaintId: string
   amount: number
+  paidAmount: number
   status: 'Pending' | 'Partially Paid' | 'Paid'
   dueInDays: number
+  updatedAt: string
 }
 
 export type FeedbackItem = {

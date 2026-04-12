@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import CustomerSidebar from '../../components/customerDashboard/CustomerSidebar'
 import BillingTab from '../../components/customerDashboard/tabs/BillingTab'
 import NotificationsTab from '../../components/customerDashboard/tabs/NotificationsTab'
@@ -87,6 +88,7 @@ const initialNotifications: NotificationItem[] = [
     detail: 'CMP-2026-254 is nearing response SLA threshold.',
     at: 'Today, 8:00 AM',
     severity: 'warning',
+    isRead: false,
   },
   {
     id: 'n2',
@@ -94,6 +96,7 @@ const initialNotifications: NotificationItem[] = [
     detail: 'Technician progress updated for CMP-2026-301.',
     at: 'Yesterday, 7:15 PM',
     severity: 'info',
+    isRead: true,
   },
   {
     id: 'n3',
@@ -101,17 +104,28 @@ const initialNotifications: NotificationItem[] = [
     detail: 'Please rate your resolved complaint CMP-2026-287.',
     at: 'Yesterday, 6:40 PM',
     severity: 'success',
+    isRead: false,
   },
 ]
 
 const initialInvoices: InvoiceSummary[] = [
-  { id: 'INV-114', complaintId: 'CMP-2026-301', amount: 2400, status: 'Pending', dueInDays: 7 },
+  {
+    id: 'INV-114',
+    complaintId: 'CMP-2026-301',
+    amount: 2400,
+    paidAmount: 0,
+    status: 'Pending',
+    dueInDays: 7,
+    updatedAt: '11 Apr 2026, 6:00 PM',
+  },
   {
     id: 'INV-108',
     complaintId: 'CMP-2026-287',
     amount: 1200,
+    paidAmount: 600,
     status: 'Partially Paid',
     dueInDays: 3,
+    updatedAt: '11 Apr 2026, 6:45 PM',
   },
 ]
 
@@ -131,13 +145,14 @@ function buildComplaintId(totalItems: number) {
 }
 
 function CustomerDashboardAdvancedPage() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
 
   const [activeTab, setActiveTab] = useState<CustomerDashboardTab>('overview')
 
   const [complaints, setComplaints] = useState<Complaint[]>(initialComplaints)
   const [notifications, setNotifications] = useState<NotificationItem[]>(initialNotifications)
-  const [invoices] = useState<InvoiceSummary[]>(initialInvoices)
+  const [invoices, setInvoices] = useState<InvoiceSummary[]>(initialInvoices)
   const [feedbackEntries, setFeedbackEntries] = useState<FeedbackItem[]>([
     {
       complaintId: 'CMP-2026-287',
@@ -171,6 +186,12 @@ function CustomerDashboardAdvancedPage() {
   const [feedbackComment, setFeedbackComment] = useState('')
   const [feedbackError, setFeedbackError] = useState('')
   const [feedbackMessage, setFeedbackMessage] = useState('')
+
+  const [profilePhone, setProfilePhone] = useState('+91-98XXXXXX10')
+  const [profileHostel, setProfileHostel] = useState('Boys Hostel 2, Room 310')
+  const [profileEmailAlerts, setProfileEmailAlerts] = useState(true)
+  const [profileWhatsappAlerts, setProfileWhatsappAlerts] = useState(false)
+  const [profileMessage, setProfileMessage] = useState('')
 
   const categories = useMemo(
     () => ['All Categories', ...new Set(complaints.map((item) => item.category))],
@@ -237,10 +258,10 @@ function CustomerDashboardAdvancedPage() {
     () => ({
       complaints: complaints.length,
       open: metrics.open,
-      notifications: notifications.length,
+      notifications: notifications.filter((item) => !item.isRead).length,
       pendingInvoices: invoices.filter((item) => item.status !== 'Paid').length,
     }),
-    [complaints.length, invoices, metrics.open, notifications.length],
+    [complaints.length, invoices, metrics.open, notifications],
   )
 
   const applySearch = () => {
@@ -256,6 +277,16 @@ function CustomerDashboardAdvancedPage() {
     setSortOrder('Newest First')
   }
 
+  const clearRaiseForm = () => {
+    setNewTitle('')
+    setNewCategory(categoryOptions[0])
+    setNewLocation('')
+    setNewPriority('Medium')
+    setNewDescription('')
+    setFormError('')
+    setFormMessage('')
+  }
+
   const pushNotification = (title: string, detail: string, severity: NotificationItem['severity']) => {
     setNotifications((prev) => [
       {
@@ -264,9 +295,72 @@ function CustomerDashboardAdvancedPage() {
         detail,
         severity,
         at: nowStamp(),
+        isRead: false,
       },
       ...prev,
     ])
+  }
+
+  const markNotificationAsRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, isRead: true } : item)),
+    )
+  }
+
+  const markAllNotificationsAsRead = () => {
+    setNotifications((prev) => prev.map((item) => ({ ...item, isRead: true })))
+  }
+
+  const clearReadNotifications = () => {
+    setNotifications((prev) => prev.filter((item) => !item.isRead))
+  }
+
+  const makePayment = (invoiceId: string, mode: 'partial' | 'full') => {
+    setInvoices((prev) =>
+      prev.map((item) => {
+        if (item.id !== invoiceId || item.status === 'Paid') {
+          return item
+        }
+
+        const nextPaidAmount =
+          mode === 'full'
+            ? item.amount
+            : Math.min(item.amount, Math.max(item.paidAmount, Math.round(item.amount * 0.5)))
+
+        const status = nextPaidAmount >= item.amount ? 'Paid' : 'Partially Paid'
+
+        return {
+          ...item,
+          paidAmount: nextPaidAmount,
+          status,
+          updatedAt: nowStamp(),
+        }
+      }),
+    )
+
+    pushNotification(
+      'Payment Update',
+      `Invoice ${invoiceId} updated with ${mode === 'full' ? 'full' : 'partial'} payment.`,
+      'success',
+    )
+  }
+
+  const saveProfileSettings = () => {
+    setProfileMessage('Profile preferences saved successfully.')
+    pushNotification('Profile Updated', 'Your contact and alert preferences were saved.', 'info')
+  }
+
+  const copyComplaintId = async () => {
+    if (!selectedComplaint) {
+      return
+    }
+
+    try {
+      await navigator.clipboard.writeText(selectedComplaint.id)
+      pushNotification('Copied', `${selectedComplaint.id} copied to clipboard.`, 'info')
+    } catch {
+      pushNotification('Copy Failed', 'Clipboard permission denied on this browser.', 'warning')
+    }
   }
 
   const handleCreateComplaint = () => {
@@ -469,6 +563,7 @@ function CustomerDashboardAdvancedPage() {
             onPriorityChange={setNewPriority}
             onDescriptionChange={setNewDescription}
             onSubmit={handleCreateComplaint}
+            onClear={clearRaiseForm}
           />
         )
       case 'tracker':
@@ -512,12 +607,20 @@ function CustomerDashboardAdvancedPage() {
             onFeedbackCommentChange={setFeedbackComment}
             onSubmitFeedback={submitFeedback}
             onReopen={handleReopenRequest}
+            onCopyComplaintId={copyComplaintId}
           />
         )
       case 'billing':
-        return <BillingTab invoices={invoices} />
+        return <BillingTab invoices={invoices} onPayInvoice={makePayment} />
       case 'notifications':
-        return <NotificationsTab notifications={notifications} />
+        return (
+          <NotificationsTab
+            notifications={notifications}
+            onMarkRead={markNotificationAsRead}
+            onMarkAllRead={markAllNotificationsAsRead}
+            onClearRead={clearReadNotifications}
+          />
+        )
       case 'profile':
         return (
           <ProfileTab
@@ -527,6 +630,28 @@ function CustomerDashboardAdvancedPage() {
               role: (user?.role ?? 'customer').replace('_', ' ').toUpperCase(),
               department: user?.department ?? 'Student Services',
             }}
+            phone={profilePhone}
+            hostelAddress={profileHostel}
+            emailAlerts={profileEmailAlerts}
+            whatsappAlerts={profileWhatsappAlerts}
+            message={profileMessage}
+            onPhoneChange={(value) => {
+              setProfilePhone(value)
+              setProfileMessage('')
+            }}
+            onHostelAddressChange={(value) => {
+              setProfileHostel(value)
+              setProfileMessage('')
+            }}
+            onEmailAlertsChange={(value) => {
+              setProfileEmailAlerts(value)
+              setProfileMessage('')
+            }}
+            onWhatsappAlertsChange={(value) => {
+              setProfileWhatsappAlerts(value)
+              setProfileMessage('')
+            }}
+            onSave={saveProfileSettings}
           />
         )
       default:
@@ -535,10 +660,22 @@ function CustomerDashboardAdvancedPage() {
   })()
 
   return (
-    <main className="min-h-screen bg-[rgb(var(--color-bg))] px-4 py-7 md:px-8 lg:px-12">
-      <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[300px_1fr]">
-        <CustomerSidebar activeTab={activeTab} onTabChange={setActiveTab} counts={sidebarCounts} />
-        <div>{content}</div>
+    <main className="min-h-screen bg-[rgb(var(--color-bg))] px-4 py-7 md:px-8 lg:h-screen lg:overflow-hidden lg:px-12 lg:py-4">
+      <div className="mx-auto grid max-w-7xl gap-6 lg:h-full lg:grid-cols-[300px_1fr]">
+        <CustomerSidebar
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          counts={sidebarCounts}
+          userInfo={{
+            name: user?.name ?? 'Customer User',
+          }}
+          onProfileClick={() => setActiveTab('profile')}
+          onLogout={() => {
+            logout()
+            navigate('/login')
+          }}
+        />
+        <div className="lg:h-full lg:overflow-y-auto lg:pr-1">{content}</div>
       </div>
     </main>
   )

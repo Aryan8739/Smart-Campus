@@ -15,6 +15,7 @@ type RaiseComplaintTabProps = {
   onPriorityChange: (value: Priority) => void
   onDescriptionChange: (value: string) => void
   onSubmit: () => void
+  onClear: () => void
 }
 
 function RaiseComplaintTab({
@@ -32,7 +33,10 @@ function RaiseComplaintTab({
   onPriorityChange,
   onDescriptionChange,
   onSubmit,
+  onClear,
 }: RaiseComplaintTabProps) {
+  const descriptionCount = description.trim().length
+
   return (
     <section className="rounded-3xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-6 shadow-sm">
       <h2 className="text-xl font-semibold">Raise a New Complaint</h2>
@@ -84,17 +88,30 @@ function RaiseComplaintTab({
         placeholder="Describe the issue with all important details."
         className="mt-3 w-full rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-2.5 text-sm"
       />
+      <div className="mt-1 flex items-center justify-between text-[11px] text-[rgb(var(--color-text-secondary))]">
+        <span>Tip: include block, room, and impact for faster assignment.</span>
+        <span>{descriptionCount} chars</span>
+      </div>
 
       {formError ? <p className="mt-2 text-xs font-semibold text-[rgb(var(--color-danger))]">{formError}</p> : null}
       {formMessage ? <p className="mt-2 text-xs font-semibold text-[rgb(var(--color-success))]">{formMessage}</p> : null}
 
-      <button
-        type="button"
-        onClick={onSubmit}
-        className="mt-4 rounded-xl bg-[rgb(var(--color-primary))] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[rgb(var(--color-primary-hover))]"
-      >
-        Submit Complaint
-      </button>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={onSubmit}
+          className="rounded-xl bg-[rgb(var(--color-primary))] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[rgb(var(--color-primary-hover))]"
+        >
+          Submit Complaint
+        </button>
+        <button
+          type="button"
+          onClick={onClear}
+          className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--color-text-primary))]"
+        >
+          Clear Form
+        </button>
+      </div>
     </section>
   )
 }

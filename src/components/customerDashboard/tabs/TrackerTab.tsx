@@ -55,6 +55,18 @@ function TrackerTab({
         </span>
       </div>
 
+      <div className="mt-3 flex flex-wrap gap-2 text-xs">
+        <span className="rounded-full border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-2.5 py-1 text-[rgb(var(--color-text-secondary))]">
+          Selected: {selectedComplaintId || 'None'}
+        </span>
+        <span className="rounded-full border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-2.5 py-1 text-[rgb(var(--color-text-secondary))]">
+          Active Filter: {statusFilter}
+        </span>
+        <span className="rounded-full border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-2.5 py-1 text-[rgb(var(--color-text-secondary))]">
+          Sort: {sortOrder}
+        </span>
+      </div>
+
       <div className="mt-4 flex flex-wrap gap-2">
         <input
           value={searchInput}
@@ -160,7 +172,8 @@ function TrackerTab({
       <button
         type="button"
         onClick={onOpenWorkspace}
-        className="mt-4 rounded-xl bg-[rgb(var(--color-primary))] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[rgb(var(--color-primary-hover))]"
+        disabled={!selectedComplaintId}
+        className="mt-4 rounded-xl bg-[rgb(var(--color-primary))] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[rgb(var(--color-primary-hover))] disabled:cursor-not-allowed disabled:opacity-50"
       >
         Open Selected Complaint Workspace
       </button>
