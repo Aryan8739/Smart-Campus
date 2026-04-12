@@ -16,6 +16,26 @@ function IntakeTab({ tickets, teams, onAssign, onStatusChange, onEscalate }: Int
   const [selectedTicketId, setSelectedTicketId] = useState('')
   const [selectedAssignee, setSelectedAssignee] = useState('')
 
+  const selectedTicket = useMemo(
+    () => tickets.find((item) => item.id === selectedTicketId),
+    [selectedTicketId, tickets],
+  )
+
+  const openCount = useMemo(
+    () => tickets.filter((item) => item.status === 'Open').length,
+    [tickets],
+  )
+
+  const assignedCount = useMemo(
+    () => tickets.filter((item) => item.status === 'Assigned' || item.status === 'In Progress').length,
+    [tickets],
+  )
+
+  const escalatedCount = useMemo(
+    () => tickets.filter((item) => item.status === 'Escalated').length,
+    [tickets],
+  )
+
   const filteredTickets = useMemo(
     () =>
       tickets.filter((item) => {
@@ -38,6 +58,18 @@ function IntakeTab({ tickets, teams, onAssign, onStatusChange, onEscalate }: Int
         <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
           Triage new complaints, assign ownership, and drive status transitions.
         </p>
+
+        <div className="mt-4 grid gap-2 sm:grid-cols-3">
+          <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-3 text-xs text-[rgb(var(--color-text-secondary))]">
+            Open Queue: <span className="font-semibold text-[rgb(var(--color-warning))]">{openCount}</span>
+          </div>
+          <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-3 text-xs text-[rgb(var(--color-text-secondary))]">
+            Active Work: <span className="font-semibold text-[rgb(var(--color-primary))]">{assignedCount}</span>
+          </div>
+          <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-3 text-xs text-[rgb(var(--color-text-secondary))]">
+            Escalated: <span className="font-semibold text-[rgb(var(--color-danger))]">{escalatedCount}</span>
+          </div>
+        </div>
 
         <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_180px]">
           <input
@@ -62,49 +94,78 @@ function IntakeTab({ tickets, teams, onAssign, onStatusChange, onEscalate }: Int
       </header>
 
       <article className="rounded-3xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-5 shadow-sm">
-        <div className="mb-3 grid gap-2 md:grid-cols-[1fr_200px_180px_180px]">
-          <select
-            value={selectedTicketId}
-            onChange={(event) => setSelectedTicketId(event.target.value)}
-            className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-2 py-2 text-sm"
-          >
-            <option value="">Select ticket</option>
-            {tickets
-              .filter((ticket) => ticket.status !== 'Resolved')
-              .map((ticket) => (
-                <option key={ticket.id} value={ticket.id}>
-                  {ticket.id} - {ticket.title}
-                </option>
-              ))}
-          </select>
-          <select
-            value={selectedAssignee}
-            onChange={(event) => setSelectedAssignee(event.target.value)}
-            className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-2 py-2 text-sm"
-          >
-            <option value="">Assign member</option>
-            {teams
-              .filter((member) => member.active)
-              .map((member) => (
-                <option key={member.id} value={member.id}>
-                  {member.name} ({member.skill})
-                </option>
-              ))}
-          </select>
-          <button
-            type="button"
-            onClick={() => onAssign(selectedTicketId, selectedAssignee)}
-            className="rounded-lg bg-[rgb(var(--color-primary))] px-3 py-2 text-xs font-semibold text-white"
-          >
-            Assign Ticket
-          </button>
-          <button
-            type="button"
-            onClick={() => onEscalate(selectedTicketId)}
-            className="rounded-lg border border-[rgb(var(--color-danger))/0.4] bg-[rgb(var(--color-danger))/0.08] px-3 py-2 text-xs font-semibold text-[rgb(var(--color-danger))]"
-          >
-            Escalate
-          </button>
+        <div className="mb-4 grid gap-4 xl:grid-cols-[1fr_1.4fr]">
+          <div className="rounded-2xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[rgb(var(--color-text-secondary))]">Quick Assignment Panel</p>
+
+            <div className="mt-3 space-y-2">
+              <select
+                value={selectedTicketId}
+                onChange={(event) => setSelectedTicketId(event.target.value)}
+                className="w-full rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] px-2 py-2 text-sm"
+              >
+                <option value="">Select ticket</option>
+                {tickets
+                  .filter((ticket) => ticket.status !== 'Resolved')
+                  .map((ticket) => (
+                    <option key={ticket.id} value={ticket.id}>
+                      {ticket.id} - {ticket.title}
+                    </option>
+                  ))}
+              </select>
+
+              <select
+                value={selectedAssignee}
+                onChange={(event) => setSelectedAssignee(event.target.value)}
+                className="w-full rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] px-2 py-2 text-sm"
+              >
+                <option value="">Assign member</option>
+                {teams
+                  .filter((member) => member.active)
+                  .map((member) => (
+                    <option key={member.id} value={member.id}>
+                      {member.name} ({member.skill})
+                    </option>
+                  ))}
+              </select>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={!selectedTicketId || !selectedAssignee}
+                  onClick={() => onAssign(selectedTicketId, selectedAssignee)}
+                  className="rounded-lg bg-[rgb(var(--color-primary))] px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-55"
+                >
+                  Assign Ticket
+                </button>
+                <button
+                  type="button"
+                  disabled={!selectedTicketId}
+                  onClick={() => onEscalate(selectedTicketId)}
+                  className="rounded-lg border border-[rgb(var(--color-danger))/0.4] bg-[rgb(var(--color-danger))/0.08] px-3 py-2 text-xs font-semibold text-[rgb(var(--color-danger))] disabled:cursor-not-allowed disabled:opacity-55"
+                >
+                  Escalate
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[rgb(var(--color-text-secondary))]">Selected Ticket Context</p>
+            {selectedTicket ? (
+              <div className="mt-3 space-y-2 text-xs">
+                <p className="font-semibold text-[rgb(var(--color-text-primary))]">{selectedTicket.id} - {selectedTicket.title}</p>
+                <p className="text-[rgb(var(--color-text-secondary))]">Location: {selectedTicket.location}</p>
+                <p className="text-[rgb(var(--color-text-secondary))]">Category: {selectedTicket.category}</p>
+                <p className="text-[rgb(var(--color-text-secondary))]">Current assignee: {selectedTicket.assignedTo ?? 'Unassigned'}</p>
+                <p className="text-[rgb(var(--color-text-secondary))]">SLA remaining: {selectedTicket.slaHoursLeft}h</p>
+              </div>
+            ) : (
+              <p className="mt-3 rounded-xl border border-dashed border-[rgb(var(--color-border))] p-3 text-xs text-[rgb(var(--color-text-secondary))]">
+                Pick a ticket from the panel to view quick context before assignment.
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="space-y-2.5">
