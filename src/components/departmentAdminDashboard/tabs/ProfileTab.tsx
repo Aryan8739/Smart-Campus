@@ -39,6 +39,18 @@ function ProfileTab({
       </header>
 
       <article className="rounded-3xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-5 shadow-sm">
+        <div className="mb-3 grid gap-2 sm:grid-cols-3">
+          <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-3 text-xs text-[rgb(var(--color-text-secondary))]">
+            Alert Channels: <span className="font-semibold text-[rgb(var(--color-text-primary))]">{emailAlerts || slackAlerts ? 'Enabled' : 'Disabled'}</span>
+          </div>
+          <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-3 text-xs text-[rgb(var(--color-text-secondary))]">
+            Governance State: <span className="font-semibold text-[rgb(var(--color-success))]">Active</span>
+          </div>
+          <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-3 text-xs text-[rgb(var(--color-text-secondary))]">
+            Escalation Policy: <span className="font-semibold text-[rgb(var(--color-text-primary))]">Configured</span>
+          </div>
+        </div>
+
         <div className="grid gap-3 md:grid-cols-2">
           <div>
             <label className="text-xs font-semibold uppercase tracking-wide text-[rgb(var(--color-text-secondary))]">Admin Name</label>

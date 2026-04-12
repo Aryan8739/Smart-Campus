@@ -3,23 +3,35 @@ import type { DepartmentTeamMember } from '../types'
 
 type TeamsTabProps = {
   teams: DepartmentTeamMember[]
+  message: string
   onToggleActive: (id: string) => void
   onShiftChange: (id: string, shift: DepartmentTeamMember['shift']) => void
   onRebalance: () => void
 }
 
-function TeamsTab({ teams, onToggleActive, onShiftChange, onRebalance }: TeamsTabProps) {
+function TeamsTab({ teams, message, onToggleActive, onShiftChange, onRebalance }: TeamsTabProps) {
   const [query, setQuery] = useState('')
+  const [shiftFilter, setShiftFilter] = useState<'All' | DepartmentTeamMember['shift']>('All')
+  const [activeFilter, setActiveFilter] = useState<'All' | 'Active' | 'Off Shift'>('All')
 
   const filteredTeams = useMemo(
     () =>
       teams.filter(
-        (member) =>
-          query.trim() === '' ||
-          member.name.toLowerCase().includes(query.toLowerCase()) ||
-          member.skill.toLowerCase().includes(query.toLowerCase()),
+        (member) => {
+          const queryMatched =
+            query.trim() === '' ||
+            member.name.toLowerCase().includes(query.toLowerCase()) ||
+            member.skill.toLowerCase().includes(query.toLowerCase())
+          const shiftMatched = shiftFilter === 'All' || member.shift === shiftFilter
+          const activeMatched =
+            activeFilter === 'All' ||
+            (activeFilter === 'Active' && member.active) ||
+            (activeFilter === 'Off Shift' && !member.active)
+
+          return queryMatched && shiftMatched && activeMatched
+        },
       ),
-    [query, teams],
+    [activeFilter, query, shiftFilter, teams],
   )
 
   const activeCount = teams.filter((member) => member.active).length
@@ -62,12 +74,33 @@ function TeamsTab({ teams, onToggleActive, onShiftChange, onRebalance }: TeamsTa
 
       <article className="rounded-3xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-5 shadow-sm">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search by name or skill"
-            className="w-full rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-2 text-sm sm:max-w-xs"
-          />
+          <div className="grid w-full gap-2 sm:grid-cols-3">
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search by name or skill"
+              className="w-full rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-2 text-sm"
+            />
+            <select
+              value={shiftFilter}
+              onChange={(event) => setShiftFilter(event.target.value as 'All' | DepartmentTeamMember['shift'])}
+              className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-2 py-2 text-sm"
+            >
+              <option value="All">All shifts</option>
+              <option value="Morning">Morning</option>
+              <option value="General">General</option>
+              <option value="Evening">Evening</option>
+            </select>
+            <select
+              value={activeFilter}
+              onChange={(event) => setActiveFilter(event.target.value as 'All' | 'Active' | 'Off Shift')}
+              className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-2 py-2 text-sm"
+            >
+              <option value="All">All availability</option>
+              <option value="Active">Active</option>
+              <option value="Off Shift">Off Shift</option>
+            </select>
+          </div>
           <button
             type="button"
             onClick={onRebalance}
@@ -76,6 +109,12 @@ function TeamsTab({ teams, onToggleActive, onShiftChange, onRebalance }: TeamsTa
             Rebalance Workload
           </button>
         </div>
+
+        {message ? (
+          <p className="mb-3 rounded-xl border border-[rgb(var(--color-success))/0.35] bg-[rgb(var(--color-success))/0.08] p-3 text-xs font-semibold text-[rgb(var(--color-success))]">
+            {message}
+          </p>
+        ) : null}
 
         <div className="space-y-2.5">
           {filteredTeams.map((member) => (

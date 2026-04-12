@@ -5,12 +5,13 @@ import { ticketPriorityTone, ticketStatusTone } from '../types'
 type IntakeTabProps = {
   tickets: DepartmentTicket[]
   teams: DepartmentTeamMember[]
+  message: string
   onAssign: (ticketId: string, teamMemberId: string) => void
   onStatusChange: (ticketId: string, status: DepartmentTicketStatus) => void
   onEscalate: (ticketId: string) => void
 }
 
-function IntakeTab({ tickets, teams, onAssign, onStatusChange, onEscalate }: IntakeTabProps) {
+function IntakeTab({ tickets, teams, message, onAssign, onStatusChange, onEscalate }: IntakeTabProps) {
   const [query, setQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'All' | DepartmentTicketStatus>('All')
   const [selectedTicketId, setSelectedTicketId] = useState('')
@@ -169,6 +170,12 @@ function IntakeTab({ tickets, teams, onAssign, onStatusChange, onEscalate }: Int
         </div>
 
         <div className="space-y-2.5">
+          {message ? (
+            <p className="rounded-xl border border-[rgb(var(--color-success))/0.35] bg-[rgb(var(--color-success))/0.08] p-3 text-xs font-semibold text-[rgb(var(--color-success))]">
+              {message}
+            </p>
+          ) : null}
+
           {filteredTickets.map((ticket) => (
             <div key={ticket.id} className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-3">
               <div className="flex flex-wrap items-center justify-between gap-2">

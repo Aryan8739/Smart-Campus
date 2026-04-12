@@ -142,6 +142,10 @@ function DepartmentAdminDashboardPage() {
   const [emailAlerts, setEmailAlerts] = useState(true)
   const [slackAlerts, setSlackAlerts] = useState(false)
   const [profileMessage, setProfileMessage] = useState('')
+  const [intakeMessage, setIntakeMessage] = useState('')
+  const [teamMessage, setTeamMessage] = useState('')
+  const [budgetMessage, setBudgetMessage] = useState('')
+  const [reportMessage, setReportMessage] = useState('')
 
   const pushNotification = (title: string, detail: string, severity: DepartmentNotification['severity']) => {
     setNotifications((prev) => [{ id: crypto.randomUUID(), title, detail, severity, isRead: false, at: nowStamp() }, ...prev])
@@ -149,6 +153,7 @@ function DepartmentAdminDashboardPage() {
 
   const assignTicket = (ticketId: string, teamMemberId: string) => {
     if (!ticketId || !teamMemberId) {
+      setIntakeMessage('Please select both ticket and team member to assign.')
       return
     }
 
@@ -166,16 +171,19 @@ function DepartmentAdminDashboardPage() {
     )
 
     setTeams((prev) => prev.map((member) => (member.id === teamMemberId ? { ...member, workload: member.workload + 1 } : member)))
+    setIntakeMessage(`${ticketId} assigned successfully to ${teamMemberId}.`)
     pushNotification('Assignment completed', `${ticketId} assigned to ${teamMemberId}.`, 'info')
   }
 
   const changeTicketStatus = (ticketId: string, status: DepartmentTicketStatus) => {
     setTickets((prev) => prev.map((ticket) => (ticket.id === ticketId ? { ...ticket, status, updatedAt: nowStamp() } : ticket)))
+    setIntakeMessage(`${ticketId} moved to ${status}.`)
     pushNotification('Ticket status updated', `${ticketId} moved to ${status}.`, status === 'Resolved' ? 'success' : 'info')
   }
 
   const escalateTicket = (ticketId: string) => {
     if (!ticketId) {
+      setIntakeMessage('Please select a ticket before escalation.')
       return
     }
 
@@ -191,15 +199,29 @@ function DepartmentAdminDashboardPage() {
       ),
     )
 
+    setIntakeMessage(`${ticketId} escalated to priority queue.`)
     pushNotification('Ticket escalated', `${ticketId} moved to escalation queue.`, 'warning')
   }
 
   const toggleTeamMember = (id: string) => {
-    setTeams((prev) => prev.map((member) => (member.id === id ? { ...member, active: !member.active } : member)))
+    const member = teams.find((item) => item.id === id)
+    if (!member) {
+      return
+    }
+
+    const nextActive = !member.active
+    setTeams((prev) => prev.map((item) => (item.id === id ? { ...item, active: nextActive } : item)))
+    setTeamMessage(`${member.name} marked as ${nextActive ? 'Active' : 'Off Shift'}.`)
   }
 
   const changeShift = (id: string, shift: DepartmentTeamMember['shift']) => {
-    setTeams((prev) => prev.map((member) => (member.id === id ? { ...member, shift } : member)))
+    const member = teams.find((item) => item.id === id)
+    if (!member) {
+      return
+    }
+
+    setTeams((prev) => prev.map((item) => (item.id === id ? { ...item, shift } : item)))
+    setTeamMessage(`${member.name} shift updated to ${shift}.`)
   }
 
   const rebalanceWorkload = () => {
@@ -210,6 +232,7 @@ function DepartmentAdminDashboardPage() {
 
     const average = Math.max(1, Math.round(activeMembers.reduce((sum, member) => sum + member.workload, 0) / activeMembers.length))
     setTeams((prev) => prev.map((member) => (member.active ? { ...member, workload: average } : member)))
+    setTeamMessage('Active team workloads rebalanced successfully.')
     pushNotification('Workload normalized', 'Active team member loads were balanced.', 'info')
   }
 
@@ -219,6 +242,7 @@ function DepartmentAdminDashboardPage() {
       return
     }
 
+    setBudgetMessage(`Alert raised for ${line.bucket} (${line.month}).`)
     pushNotification('Budget alert generated', `${line.bucket} is nearing monthly utilization cap.`, 'warning')
   }
 
@@ -247,6 +271,7 @@ function DepartmentAdminDashboardPage() {
   }
 
   const exportReport = (format: 'pdf' | 'csv') => {
+    setReportMessage(`Export prepared for ${format.toUpperCase()} format. Download link will be available in notifications.`)
     pushNotification('Report export queued', `Department report export requested in ${format.toUpperCase()} format.`, 'info')
   }
 
@@ -344,6 +369,7 @@ function DepartmentAdminDashboardPage() {
           <IntakeTab
             tickets={tickets}
             teams={teams}
+            message={intakeMessage}
             onAssign={assignTicket}
             onStatusChange={changeTicketStatus}
             onEscalate={escalateTicket}
@@ -353,6 +379,7 @@ function DepartmentAdminDashboardPage() {
         return (
           <TeamsTab
             teams={teams}
+            message={teamMessage}
             onToggleActive={toggleTeamMember}
             onShiftChange={changeShift}
             onRebalance={rebalanceWorkload}
@@ -361,7 +388,7 @@ function DepartmentAdminDashboardPage() {
       case 'sla':
         return <SlaTab tickets={tickets} onEscalate={escalateTicket} />
       case 'budget':
-        return <BudgetTab records={budget} onRaiseAlert={raiseBudgetAlert} />
+        return <BudgetTab records={budget} message={budgetMessage} onRaiseAlert={raiseBudgetAlert} />
       case 'notifications':
         return (
           <NotificationsTab
@@ -372,7 +399,7 @@ function DepartmentAdminDashboardPage() {
           />
         )
       case 'reports':
-        return <ReportsTab kpis={reportKpis} topIssues={topIssues} onExport={exportReport} />
+        return <ReportsTab kpis={reportKpis} topIssues={topIssues} message={reportMessage} onExport={exportReport} />
       case 'profile':
         return (
           <ProfileTab
