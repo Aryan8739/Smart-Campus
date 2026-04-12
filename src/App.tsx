@@ -13,6 +13,7 @@ import AuditCompliancePage from './pages/modules/AuditCompliancePage'
 import BillingPage from './pages/modules/BillingPage'
 import ComplaintIntakePage from './pages/modules/ComplaintIntakePage'
 import CustomerDashboardAdvancedPage from './pages/modules/CustomerDashboardAdvancedPage'
+import DepartmentAdminDashboardPage from './pages/modules/DepartmentAdminDashboardPage'
 import FeedbackRatingPage from './pages/modules/FeedbackRatingPage'
 import InventoryPage from './pages/modules/InventoryPage'
 import NotificationEscalationPage from './pages/modules/NotificationEscalationPage'
@@ -104,6 +105,17 @@ function App() {
               }
             />
             <Route path="modules/assignment" element={<AssignmentPage />} />
+            <Route
+              path="department-admin/dashboard"
+              element={
+                <ProtectedRoute
+                  allowedRoles={['department_admin']}
+                  unauthorizedRedirectTo="/role-dashboard"
+                >
+                  <DepartmentAdminDashboardPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="vendor/dashboard"
               element={

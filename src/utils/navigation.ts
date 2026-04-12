@@ -13,5 +13,9 @@ export function getDefaultRouteForRole(role: UserRole) {
     return '/vendor/dashboard'
   }
 
+  if (role === 'department_admin') {
+    return '/department-admin/dashboard'
+  }
+
   return '/role-dashboard'
 }
