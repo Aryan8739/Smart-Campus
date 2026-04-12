@@ -9,5 +9,9 @@ export function getDefaultRouteForRole(role: UserRole) {
     return '/customer/dashboard'
   }
 
+  if (role === 'vendor') {
+    return '/vendor/dashboard'
+  }
+
   return '/role-dashboard'
 }

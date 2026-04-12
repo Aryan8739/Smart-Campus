@@ -19,6 +19,7 @@ import NotificationEscalationPage from './pages/modules/NotificationEscalationPa
 import ResourceAllocationBookingPage from './pages/modules/ResourceAllocationBookingPage'
 import TechnicianExecutionPage from './pages/modules/TechnicianExecutionPage'
 import UserAccessPage from './pages/modules/UserAccessPage'
+import VendorDashboardPage from './pages/modules/VendorDashboardPage'
 import {
   ActivityLogsPage,
   AnalyticsPage as UserAccessAnalyticsPage,
@@ -103,6 +104,17 @@ function App() {
               }
             />
             <Route path="modules/assignment" element={<AssignmentPage />} />
+            <Route
+              path="vendor/dashboard"
+              element={
+                <ProtectedRoute
+                  allowedRoles={['vendor']}
+                  unauthorizedRedirectTo="/role-dashboard"
+                >
+                  <VendorDashboardPage />
+                </ProtectedRoute>
+              }
+            />
             <Route path="modules/technician-execution" element={<TechnicianExecutionPage />} />
             <Route
               path="modules/notification-escalation"
