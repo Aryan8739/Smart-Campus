@@ -1,3 +1,4 @@
+import { Navigate } from 'react-router-dom'
 import UnderDevelopment from '../components/UnderDevelopment'
 import { useAuth } from '../contexts/useAuth'
 
@@ -15,6 +16,10 @@ const roleTitleMap: Record<string, string> = {
 function RoleDashboardPage() {
   const { user } = useAuth()
   const roleTitle = roleTitleMap[user?.role ?? 'customer'] ?? 'Role Dashboard'
+
+  if (user?.role === 'customer' || user?.role === 'staff') {
+    return <Navigate to="/customer/dashboard" replace />
+  }
 
   return (
     <UnderDevelopment

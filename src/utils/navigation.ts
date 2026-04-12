@@ -1,5 +1,13 @@
 import type { UserRole } from '../contexts/authTypes'
 
 export function getDefaultRouteForRole(role: UserRole) {
-  return role === 'super_admin' ? '/user-access/dashboard' : '/role-dashboard'
+  if (role === 'super_admin') {
+    return '/user-access/dashboard'
+  }
+
+  if (role === 'customer' || role === 'staff') {
+    return '/customer/dashboard'
+  }
+
+  return '/role-dashboard'
 }

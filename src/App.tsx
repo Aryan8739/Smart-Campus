@@ -91,6 +91,17 @@ function App() {
               path="modules/customer-dashboard-advanced"
               element={<CustomerDashboardAdvancedPage />}
             />
+            <Route
+              path="customer/dashboard"
+              element={
+                <ProtectedRoute
+                  allowedRoles={['customer', 'staff']}
+                  unauthorizedRedirectTo="/role-dashboard"
+                >
+                  <CustomerDashboardAdvancedPage />
+                </ProtectedRoute>
+              }
+            />
             <Route path="modules/assignment" element={<AssignmentPage />} />
             <Route path="modules/technician-execution" element={<TechnicianExecutionPage />} />
             <Route

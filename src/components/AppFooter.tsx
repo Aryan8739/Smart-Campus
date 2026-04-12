@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import {
   Bell,
   Building2,
-  Eye,
   Globe,
   Heart,
   Mail,
