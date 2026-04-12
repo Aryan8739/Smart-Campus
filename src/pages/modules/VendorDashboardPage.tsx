@@ -165,6 +165,56 @@ function VendorDashboardPage() {
     [invoices, notifications, tickets],
   )
 
+  const overviewSnapshot = useMemo(() => {
+    const unassigned = tickets.filter((ticket) => ticket.status === 'Unassigned').length
+    const escalated = tickets.filter((ticket) => ticket.status === 'Escalated').length
+    const resolved = tickets.filter((ticket) => ticket.status === 'Resolved').length
+    const activeTechniciansCount = technicians.filter((tech) => tech.active).length
+    const averageWorkload = activeTechniciansCount
+      ? Number(
+          (
+            technicians
+              .filter((tech) => tech.active)
+              .reduce((sum, tech) => sum + tech.workload, 0) / activeTechniciansCount
+          ).toFixed(1),
+        )
+      : 0
+    const unreadNotifications = notifications.filter((note) => !note.isRead).length
+    const draftInvoices = invoices.filter((invoice) => invoice.status === 'Draft').length
+    const approvedInvoices = invoices.filter(
+      (invoice) => invoice.status === 'Approved' || invoice.status === 'Paid',
+    ).length
+    const approvedValue = invoices.reduce((sum, invoice) => sum + invoice.approvedAmount, 0)
+
+    const recentEvents = [
+      ...notifications.slice(0, 2).map((item) => ({
+        title: item.title,
+        meta: `${item.at} | ${item.detail}`,
+      })),
+      ...tickets.slice(0, 2).map((ticket) => ({
+        title: `${ticket.id} | ${ticket.status}`,
+        meta: `${ticket.updatedAt} | ${ticket.location}`,
+      })),
+      ...invoices.slice(0, 1).map((invoice) => ({
+        title: `${invoice.id} | ${invoice.status}`,
+        meta: `${invoice.settlementEta} | Rs. ${invoice.approvedAmount.toLocaleString('en-IN')}`,
+      })),
+    ].slice(0, 6)
+
+    return {
+      unassigned,
+      escalated,
+      resolved,
+      activeTechnicians: activeTechniciansCount,
+      averageWorkload,
+      unreadNotifications,
+      draftInvoices,
+      approvedInvoices,
+      approvedValue,
+      recentEvents,
+    }
+  }, [invoices, notifications, tickets, technicians])
+
   const assignableTickets = useMemo(
     () => tickets.filter((ticket) => ticket.status !== 'Resolved'),
     [tickets],
@@ -289,7 +339,14 @@ function VendorDashboardPage() {
   const content = (() => {
     switch (activeTab) {
       case 'overview':
-        return <OverviewTab vendorName={profile.companyName} metrics={metrics} onNavigate={setActiveTab} />
+        return (
+          <OverviewTab
+            vendorName={profile.companyName}
+            metrics={metrics}
+            snapshot={overviewSnapshot}
+            onNavigate={setActiveTab}
+          />
+        )
       case 'assignments':
         return (
           <AssignmentsTab
