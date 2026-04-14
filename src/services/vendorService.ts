@@ -66,7 +66,7 @@ const vendorMetadata: Record<string, Omit<VendorManagementRecord, keyof VendorRe
       {
         id: 'CMP-2041',
         title: 'Main server room cooling issue',
-        status: 'Open',
+        status: 'New',
         priority: 'High',
         createdDate: '11 Mar 2026',
       },

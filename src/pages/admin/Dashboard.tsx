@@ -1,3 +1,4 @@
+import ComplaintStatusOverview from '../../components/admin/ComplaintStatusOverview'
 import ComplaintStatusChart from '../../components/ComplaintStatusChart'
 import MonthlyTrendChart from '../../components/MonthlyTrendChart'
 import DataPanel from '../../components/common/DataPanel'
@@ -10,6 +11,8 @@ function Dashboard() {
 
   return (
     <>
+      <ComplaintStatusOverview />
+
       <section className="grid gap-6 xl:grid-cols-5">
         <KpiCard title="Total Users" value={kpis.totalUsers} subtitle="Across all filtered campuses" />
         <KpiCard title="Active Users" value={kpis.activeUsers} subtitle="Session-enabled accounts" />

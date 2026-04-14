@@ -4,7 +4,7 @@ import { sessionRecords, automationSettings } from '../services/authService'
 import { complaintRecords, technicianRecords, vendorRecords } from '../services/operationsService'
 import { roleRecords } from '../services/roleService'
 import { filterUsers, userRecords } from '../services/userService'
-import type { AdminModuleContextValue, FilterState } from '../types'
+import type { AdminModuleContextValue, ComplaintStatusCounts, FilterState } from '../types'
 
 const defaultFilters: FilterState = {
   search: '',
@@ -14,6 +14,7 @@ const defaultFilters: FilterState = {
   role: 'All',
   status: 'All',
   approval: 'All',
+  complaintStatus: 'All',
 }
 
 export function useAdminFilters(): AdminModuleContextValue {
@@ -21,11 +22,24 @@ export function useAdminFilters(): AdminModuleContextValue {
 
   return useMemo(() => {
     const users = filterUsers(userRecords, filters)
-    const complaints = complaintRecords.filter((record) => {
+    const complaintsInScope = complaintRecords.filter((record) => {
       const campusMatch = filters.campus === 'All' || record.campus === filters.campus
       const deptMatch = filters.department === 'All' || record.department === filters.department
       return campusMatch && deptMatch
     })
+    const complaintStatusCounts: ComplaintStatusCounts = {
+      New: 0,
+      'In Review': 0,
+      Assigned: 0,
+      Resolved: 0,
+      Escalated: 0,
+    }
+    complaintsInScope.forEach((record) => {
+      complaintStatusCounts[record.status] += 1
+    })
+    const complaints = complaintsInScope.filter((record) => (
+      filters.complaintStatus === 'All' || record.status === filters.complaintStatus
+    ))
     const vendors = vendorRecords.filter(
       (record) => filters.campus === 'All' || record.campus === filters.campus
     )
@@ -48,6 +62,7 @@ export function useAdminFilters(): AdminModuleContextValue {
       setFilters,
       users,
       complaints,
+      complaintsInScope,
       vendors,
       technicians,
       sessions,
@@ -57,6 +72,7 @@ export function useAdminFilters(): AdminModuleContextValue {
       reports: reportRecords,
       notifications: notificationRecords,
       automation: automationSettings,
+      complaintStatusCounts,
       kpis: {
         totalUsers: users.length,
         activeUsers: users.filter((user) => user.status === 'Active').length,
