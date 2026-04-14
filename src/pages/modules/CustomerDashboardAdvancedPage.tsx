@@ -1,353 +1,681 @@
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import CustomerSidebar from '../../components/customerDashboard/CustomerSidebar'
+import BillingTab from '../../components/customerDashboard/tabs/BillingTab'
+import NotificationsTab from '../../components/customerDashboard/tabs/NotificationsTab'
+import OverviewTab from '../../components/customerDashboard/tabs/OverviewTab'
+import ProfileTab from '../../components/customerDashboard/tabs/ProfileTab'
+import RaiseComplaintTab from '../../components/customerDashboard/tabs/RaiseComplaintTab'
+import TrackerTab from '../../components/customerDashboard/tabs/TrackerTab'
+import WorkspaceTab from '../../components/customerDashboard/tabs/WorkspaceTab'
+import {
+  type Complaint,
+  type CustomerDashboardTab,
+  type FeedbackItem,
+  type InvoiceSummary,
+  type NotificationItem,
+  type Priority,
+  type SortOrder,
+} from '../../components/customerDashboard/types'
+import { useAuth } from '../../contexts/useAuth'
 
-type ComplaintStatus = 'Open' | 'In Progress' | 'Resolved'
-type SortOrder = 'Newest First' | 'Oldest First'
+const categoryOptions = ['Electrical', 'Plumbing', 'IT/Network', 'Civil', 'Housekeeping']
 
-const statusBadgeClasses: Record<ComplaintStatus, string> = {
-  Open: 'border-[rgb(var(--color-danger))] bg-[rgb(var(--color-danger))]/10 text-[rgb(var(--color-danger))]',
-  'In Progress':
-    'border-[rgb(var(--color-warning))] bg-[rgb(var(--color-warning))]/10 text-[rgb(var(--color-warning))]',
-  Resolved:
-    'border-[rgb(var(--color-success))] bg-[rgb(var(--color-success))]/10 text-[rgb(var(--color-success))]',
-}
-
-const sampleComplaints = [
+const initialComplaints: Complaint[] = [
   {
-    id: 'GBU-2026-101',
-    title: 'Street light not working near Hostel C',
+    id: 'CMP-2026-301',
+    title: 'AC not cooling in Computer Lab A-301',
     category: 'Electrical',
-    status: 'Open' as ComplaintStatus,
-    updatedAt: 'Today, 9:15 AM',
-    updatedAtIso: '2026-03-05T09:15:00+05:30',
+    location: 'School of Engineering Block A, Room 301',
+    priority: 'High',
+    status: 'In Progress',
+    description:
+      'Room temperature remains high during practical session hours and affects system performance.',
+    createdAt: '09 Apr 2026, 10:10 AM',
+    updatedAt: 'Today, 8:20 AM',
+    updatedAtIso: '2026-04-12T08:20:00+05:30',
+    assignedTeam: 'Electrical Response Team',
+    invoiceStatus: 'Pending',
+    evidence: ['lab-ac-panel.jpg'],
+    timeline: [
+      { id: 't1', label: 'Complaint submitted', when: '09 Apr 2026, 10:10 AM' },
+      { id: 't2', label: 'Assigned to Electrical Response Team', when: '09 Apr 2026, 11:00 AM' },
+      { id: 't3', label: 'On-site visit started', when: '10 Apr 2026, 9:15 AM' },
+    ],
   },
   {
-    id: 'GBU-2026-089',
-    title: 'Water leakage in Academic Block 2',
+    id: 'CMP-2026-287',
+    title: 'Water leakage in Boys Hostel 2 washroom',
     category: 'Plumbing',
-    status: 'In Progress' as ComplaintStatus,
-    updatedAt: 'Today, 8:40 AM',
-    updatedAtIso: '2026-03-05T08:40:00+05:30',
+    location: 'Boys Hostel 2, Room 310',
+    priority: 'Medium',
+    status: 'Resolved',
+    description: 'Continuous water leakage from tap and drainage, causing water logging.',
+    createdAt: '03 Apr 2026, 4:05 PM',
+    updatedAt: 'Yesterday, 6:30 PM',
+    updatedAtIso: '2026-04-11T18:30:00+05:30',
+    assignedTeam: 'Plumbing Duty Team',
+    invoiceStatus: 'Partially Paid',
+    evidence: ['hostel-washroom-before.png', 'hostel-washroom-after.png'],
+    timeline: [
+      { id: 't4', label: 'Complaint submitted', when: '03 Apr 2026, 4:05 PM' },
+      { id: 't5', label: 'Assigned to Plumbing Duty Team', when: '03 Apr 2026, 5:10 PM' },
+      { id: 't6', label: 'Issue resolved', when: '11 Apr 2026, 6:30 PM' },
+    ],
   },
   {
-    id: 'GBU-2026-044',
-    title: 'Classroom fan replacement request',
-    category: 'Electrical',
-    status: 'Resolved' as ComplaintStatus,
-    updatedAt: 'Yesterday, 5:10 PM',
-    updatedAtIso: '2026-03-04T17:10:00+05:30',
+    id: 'CMP-2026-254',
+    title: 'WiFi dead zone in Central Library reading hall',
+    category: 'IT/Network',
+    location: 'Central Library - Reading Hall',
+    priority: 'Critical',
+    status: 'Open',
+    description: 'Frequent disconnections in the east wing during peak study hours.',
+    createdAt: '01 Apr 2026, 2:40 PM',
+    updatedAt: 'Today, 7:45 AM',
+    updatedAtIso: '2026-04-12T07:45:00+05:30',
+    assignedTeam: 'Pending Assignment',
+    invoiceStatus: 'Not Generated',
+    evidence: [],
+    timeline: [{ id: 't7', label: 'Complaint submitted', when: '01 Apr 2026, 2:40 PM' }],
   },
 ]
 
+const initialNotifications: NotificationItem[] = [
+  {
+    id: 'n1',
+    title: 'SLA Reminder',
+    detail: 'CMP-2026-254 is nearing response SLA threshold.',
+    at: 'Today, 8:00 AM',
+    severity: 'warning',
+    isRead: false,
+  },
+  {
+    id: 'n2',
+    title: 'Work Update',
+    detail: 'Technician progress updated for CMP-2026-301.',
+    at: 'Yesterday, 7:15 PM',
+    severity: 'info',
+    isRead: true,
+  },
+  {
+    id: 'n3',
+    title: 'Feedback Reminder',
+    detail: 'Please rate your resolved complaint CMP-2026-287.',
+    at: 'Yesterday, 6:40 PM',
+    severity: 'success',
+    isRead: false,
+  },
+]
+
+const initialInvoices: InvoiceSummary[] = [
+  {
+    id: 'INV-114',
+    complaintId: 'CMP-2026-301',
+    amount: 2400,
+    paidAmount: 0,
+    status: 'Pending',
+    dueInDays: 7,
+    updatedAt: '11 Apr 2026, 6:00 PM',
+  },
+  {
+    id: 'INV-108',
+    complaintId: 'CMP-2026-287',
+    amount: 1200,
+    paidAmount: 600,
+    status: 'Partially Paid',
+    dueInDays: 3,
+    updatedAt: '11 Apr 2026, 6:45 PM',
+  },
+]
+
+function nowStamp() {
+  return new Intl.DateTimeFormat('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  }).format(new Date())
+}
+
+function buildComplaintId(totalItems: number) {
+  return `CMP-2026-${String(400 + totalItems + 1).padStart(3, '0')}`
+}
+
 function CustomerDashboardAdvancedPage() {
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const [activeTab, setActiveTab] = useState<CustomerDashboardTab>('overview')
+
+  const [complaints, setComplaints] = useState<Complaint[]>(initialComplaints)
+  const [notifications, setNotifications] = useState<NotificationItem[]>(initialNotifications)
+  const [invoices, setInvoices] = useState<InvoiceSummary[]>(initialInvoices)
+  const [feedbackEntries, setFeedbackEntries] = useState<FeedbackItem[]>([
+    {
+      complaintId: 'CMP-2026-287',
+      rating: 4,
+      comment: 'Issue resolved and washroom condition is much better now.',
+      submittedAt: '11 Apr 2026, 8:15 PM',
+    },
+  ])
+
+  const [selectedComplaintId, setSelectedComplaintId] = useState<string>(initialComplaints[0]?.id ?? '')
+
+  const [searchInput, setSearchInput] = useState('')
+  const [appliedSearch, setAppliedSearch] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('All Categories')
+  const [statusFilter, setStatusFilter] = useState('All Status')
+  const [priorityFilter, setPriorityFilter] = useState('All Priorities')
+  const [sortOrder, setSortOrder] = useState<SortOrder>('Newest First')
+
+  const [newTitle, setNewTitle] = useState('')
+  const [newCategory, setNewCategory] = useState(categoryOptions[0])
+  const [newLocation, setNewLocation] = useState('')
+  const [newPriority, setNewPriority] = useState<Priority>('Medium')
+  const [newDescription, setNewDescription] = useState('')
+  const [formError, setFormError] = useState('')
+  const [formMessage, setFormMessage] = useState('')
+
   const [uploadError, setUploadError] = useState('')
   const [uploadMessage, setUploadMessage] = useState('')
 
-  const [categoryFilter, setCategoryFilter] = useState('All Categories')
-  const [statusFilter, setStatusFilter] = useState('All Status')
-  const [sortOrder, setSortOrder] = useState<SortOrder>('Newest First')
-  const [searchInput, setSearchInput] = useState('')
-  const [appliedSearch, setAppliedSearch] = useState('')
+  const [feedbackRating, setFeedbackRating] = useState(5)
+  const [feedbackComment, setFeedbackComment] = useState('')
+  const [feedbackError, setFeedbackError] = useState('')
+  const [feedbackMessage, setFeedbackMessage] = useState('')
+
+  const [profilePhone, setProfilePhone] = useState('+91-98XXXXXX10')
+  const [profileHostel, setProfileHostel] = useState('Boys Hostel 2, Room 310')
+  const [profileEmailAlerts, setProfileEmailAlerts] = useState(true)
+  const [profileWhatsappAlerts, setProfileWhatsappAlerts] = useState(false)
+  const [profileMessage, setProfileMessage] = useState('')
 
   const categories = useMemo(
-    () => ['All Categories', ...new Set(sampleComplaints.map((item) => item.category))],
-    [],
+    () => ['All Categories', ...new Set(complaints.map((item) => item.category))],
+    [complaints],
   )
 
   const statuses = useMemo(
-    () => ['All Status', ...new Set(sampleComplaints.map((item) => item.status))],
-    [],
+    () => ['All Status', ...new Set(complaints.map((item) => item.status))],
+    [complaints],
+  )
+
+  const priorities = useMemo(
+    () => ['All Priorities', ...new Set(complaints.map((item) => item.priority))],
+    [complaints],
   )
 
   const filteredComplaints = useMemo(() => {
-    const base = sampleComplaints.filter((complaint) => {
-      const categoryMatched =
-        categoryFilter === 'All Categories' || complaint.category === categoryFilter
-      const statusMatched = statusFilter === 'All Status' || complaint.status === statusFilter
+    const rows = complaints.filter((item) => {
+      const categoryMatched = categoryFilter === 'All Categories' || item.category === categoryFilter
+      const statusMatched = statusFilter === 'All Status' || item.status === statusFilter
+      const priorityMatched = priorityFilter === 'All Priorities' || item.priority === priorityFilter
       const searchMatched =
         appliedSearch.trim() === '' ||
-        complaint.id.toLowerCase().includes(appliedSearch.toLowerCase()) ||
-        complaint.title.toLowerCase().includes(appliedSearch.toLowerCase())
-      return categoryMatched && statusMatched && searchMatched
+        item.id.toLowerCase().includes(appliedSearch.toLowerCase()) ||
+        item.title.toLowerCase().includes(appliedSearch.toLowerCase()) ||
+        item.location.toLowerCase().includes(appliedSearch.toLowerCase())
+
+      return categoryMatched && statusMatched && priorityMatched && searchMatched
     })
 
-    const sorted = [...base].sort((a, b) => {
+    return [...rows].sort((a, b) => {
       const aTime = new Date(a.updatedAtIso).getTime()
       const bTime = new Date(b.updatedAtIso).getTime()
       return sortOrder === 'Newest First' ? bTime - aTime : aTime - bTime
     })
+  }, [appliedSearch, categoryFilter, complaints, priorityFilter, sortOrder, statusFilter])
 
-    return sorted
-  }, [appliedSearch, categoryFilter, statusFilter, sortOrder])
+  const selectedComplaint = useMemo(
+    () => complaints.find((item) => item.id === selectedComplaintId) ?? null,
+    [complaints, selectedComplaintId],
+  )
 
-  const handleFileSelection = (files: FileList | null) => {
-    if (!files || files.length === 0) {
+  const selectedComplaintFeedback = useMemo(
+    () => feedbackEntries.find((item) => item.complaintId === selectedComplaintId) ?? null,
+    [feedbackEntries, selectedComplaintId],
+  )
+
+  const metrics = useMemo(() => {
+    const total = complaints.length
+    const open = complaints.filter((item) => item.status === 'Open' || item.status === 'Reopened').length
+    const inProgress = complaints.filter((item) => item.status === 'Assigned' || item.status === 'In Progress').length
+    const resolved = complaints.filter((item) => item.status === 'Resolved').length
+
+    return {
+      total,
+      open,
+      inProgress,
+      resolved,
+      responseScore: total > 0 ? Math.round((resolved / total) * 100) : 0,
+    }
+  }, [complaints])
+
+  const sidebarCounts = useMemo(
+    () => ({
+      complaints: complaints.length,
+      open: metrics.open,
+      notifications: notifications.filter((item) => !item.isRead).length,
+      pendingInvoices: invoices.filter((item) => item.status !== 'Paid').length,
+    }),
+    [complaints.length, invoices, metrics.open, notifications],
+  )
+
+  const applySearch = () => {
+    setAppliedSearch(searchInput.trim())
+  }
+
+  const resetFilters = () => {
+    setSearchInput('')
+    setAppliedSearch('')
+    setCategoryFilter('All Categories')
+    setStatusFilter('All Status')
+    setPriorityFilter('All Priorities')
+    setSortOrder('Newest First')
+  }
+
+  const clearRaiseForm = () => {
+    setNewTitle('')
+    setNewCategory(categoryOptions[0])
+    setNewLocation('')
+    setNewPriority('Medium')
+    setNewDescription('')
+    setFormError('')
+    setFormMessage('')
+  }
+
+  const pushNotification = (title: string, detail: string, severity: NotificationItem['severity']) => {
+    setNotifications((prev) => [
+      {
+        id: crypto.randomUUID(),
+        title,
+        detail,
+        severity,
+        at: nowStamp(),
+        isRead: false,
+      },
+      ...prev,
+    ])
+  }
+
+  const markNotificationAsRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, isRead: true } : item)),
+    )
+  }
+
+  const markAllNotificationsAsRead = () => {
+    setNotifications((prev) => prev.map((item) => ({ ...item, isRead: true })))
+  }
+
+  const clearReadNotifications = () => {
+    setNotifications((prev) => prev.filter((item) => !item.isRead))
+  }
+
+  const makePayment = (invoiceId: string, mode: 'partial' | 'full') => {
+    setInvoices((prev) =>
+      prev.map((item) => {
+        if (item.id !== invoiceId || item.status === 'Paid') {
+          return item
+        }
+
+        const nextPaidAmount =
+          mode === 'full'
+            ? item.amount
+            : Math.min(item.amount, Math.max(item.paidAmount, Math.round(item.amount * 0.5)))
+
+        const status = nextPaidAmount >= item.amount ? 'Paid' : 'Partially Paid'
+
+        return {
+          ...item,
+          paidAmount: nextPaidAmount,
+          status,
+          updatedAt: nowStamp(),
+        }
+      }),
+    )
+
+    pushNotification(
+      'Payment Update',
+      `Invoice ${invoiceId} updated with ${mode === 'full' ? 'full' : 'partial'} payment.`,
+      'success',
+    )
+  }
+
+  const saveProfileSettings = () => {
+    setProfileMessage('Profile preferences saved successfully.')
+    pushNotification('Profile Updated', 'Your contact and alert preferences were saved.', 'info')
+  }
+
+  const copyComplaintId = async () => {
+    if (!selectedComplaint) {
+      return
+    }
+
+    try {
+      await navigator.clipboard.writeText(selectedComplaint.id)
+      pushNotification('Copied', `${selectedComplaint.id} copied to clipboard.`, 'info')
+    } catch {
+      pushNotification('Copy Failed', 'Clipboard permission denied on this browser.', 'warning')
+    }
+  }
+
+  const handleCreateComplaint = () => {
+    if (newTitle.trim().length < 8) {
+      setFormError('Complaint title should be at least 8 characters long.')
+      setFormMessage('')
+      return
+    }
+
+    if (newLocation.trim().length < 5) {
+      setFormError('Please enter a valid location with sufficient details.')
+      setFormMessage('')
+      return
+    }
+
+    if (newDescription.trim().length < 20) {
+      setFormError('Description should clearly explain the issue in at least 20 characters.')
+      setFormMessage('')
+      return
+    }
+
+    const ticketId = buildComplaintId(complaints.length)
+    const timestamp = nowStamp()
+    const complaint: Complaint = {
+      id: ticketId,
+      title: newTitle.trim(),
+      category: newCategory,
+      location: newLocation.trim(),
+      priority: newPriority,
+      status: 'Open',
+      description: newDescription.trim(),
+      createdAt: timestamp,
+      updatedAt: 'Just now',
+      updatedAtIso: new Date().toISOString(),
+      assignedTeam: 'Pending Assignment',
+      invoiceStatus: 'Not Generated',
+      evidence: [],
+      timeline: [{ id: crypto.randomUUID(), label: 'Complaint submitted', when: timestamp }],
+    }
+
+    setComplaints((prev) => [complaint, ...prev])
+    setSelectedComplaintId(complaint.id)
+    setActiveTab('workspace')
+
+    setNewTitle('')
+    setNewCategory(categoryOptions[0])
+    setNewLocation('')
+    setNewPriority('Medium')
+    setNewDescription('')
+
+    setFormError('')
+    setFormMessage(`${ticketId} created successfully. You will receive assignment update shortly.`)
+
+    pushNotification('Complaint Acknowledged', `${ticketId} has been registered in queue.`, 'success')
+  }
+
+  const handleEvidenceUpload = (files: FileList | null) => {
+    if (!selectedComplaint || !files || files.length === 0) {
       return
     }
 
     const maxSizeBytes = 10 * 1024 * 1024
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/mp4']
 
-    const nextFiles: File[] = []
-    const invalidFiles: string[] = []
+    const acceptedNames: string[] = []
+    const rejectedNames: string[] = []
 
     Array.from(files).forEach((file) => {
       const validType = allowedMimeTypes.includes(file.type)
       const validSize = file.size <= maxSizeBytes
       if (validType && validSize) {
-        nextFiles.push(file)
+        acceptedNames.push(file.name)
       } else {
-        invalidFiles.push(file.name)
+        rejectedNames.push(file.name)
       }
     })
 
-    setSelectedFiles((previous) => [...previous, ...nextFiles])
+    if (acceptedNames.length > 0) {
+      setComplaints((prev) =>
+        prev.map((item) => {
+          if (item.id !== selectedComplaint.id) {
+            return item
+          }
 
-    if (invalidFiles.length > 0) {
-      setUploadError(
-        `These files were rejected (type/size rule): ${invalidFiles.join(', ')}. Allowed: JPG, PNG, MP4 up to 10MB.`,
+          return {
+            ...item,
+            evidence: [...item.evidence, ...acceptedNames],
+            updatedAt: 'Just now',
+            updatedAtIso: new Date().toISOString(),
+            timeline: [
+              ...item.timeline,
+              {
+                id: crypto.randomUUID(),
+                label: `Evidence uploaded (${acceptedNames.length} file(s))`,
+                when: nowStamp(),
+              },
+            ],
+          }
+        }),
       )
-    } else {
+
+      setUploadMessage(`${acceptedNames.length} file(s) attached to ${selectedComplaint.id}.`)
       setUploadError('')
+      pushNotification('Evidence Added', `${selectedComplaint.id} updated with new attachments.`, 'info')
     }
-    setUploadMessage('')
+
+    if (rejectedNames.length > 0) {
+      setUploadError(
+        `These files were rejected: ${rejectedNames.join(', ')}. Allowed formats: JPG, PNG, MP4 (max 10MB).`,
+      )
+    }
   }
 
-  const removeFile = (fileName: string) => {
-    setSelectedFiles((previous) => previous.filter((file) => file.name !== fileName))
-    setUploadError('')
-    setUploadMessage('')
-  }
-
-  const handleUpload = () => {
-    if (selectedFiles.length === 0) {
-      setUploadError('Select at least one valid file before uploading.')
-      setUploadMessage('')
+  const handleReopenRequest = () => {
+    if (!selectedComplaint || selectedComplaint.status !== 'Resolved') {
       return
     }
 
-    setUploadError('')
-    setUploadMessage(`${selectedFiles.length} file(s) ready for upload.`)
+    setComplaints((prev) =>
+      prev.map((item) => {
+        if (item.id !== selectedComplaint.id) {
+          return item
+        }
+
+        return {
+          ...item,
+          status: 'Reopened',
+          updatedAt: 'Just now',
+          updatedAtIso: new Date().toISOString(),
+          timeline: [
+            ...item.timeline,
+            {
+              id: crypto.randomUUID(),
+              label: 'Customer requested reopen with review note',
+              when: nowStamp(),
+            },
+          ],
+        }
+      }),
+    )
+
+    pushNotification('Reopen Request Submitted', `${selectedComplaint.id} moved to reopened queue.`, 'warning')
   }
 
-  const resetFilters = () => {
-    setCategoryFilter('All Categories')
-    setStatusFilter('All Status')
-    setSortOrder('Newest First')
-    setSearchInput('')
-    setAppliedSearch('')
+  const submitFeedback = () => {
+    if (!selectedComplaint || selectedComplaint.status !== 'Resolved') {
+      return
+    }
+
+    if (feedbackComment.trim().length < 10) {
+      setFeedbackError('Please add a meaningful comment with at least 10 characters.')
+      setFeedbackMessage('')
+      return
+    }
+
+    setFeedbackEntries((prev) => {
+      const withoutCurrent = prev.filter((item) => item.complaintId !== selectedComplaint.id)
+      return [
+        {
+          complaintId: selectedComplaint.id,
+          rating: feedbackRating,
+          comment: feedbackComment.trim(),
+          submittedAt: nowStamp(),
+        },
+        ...withoutCurrent,
+      ]
+    })
+
+    setFeedbackError('')
+    setFeedbackMessage('Feedback submitted successfully. Thank you for helping us improve service quality.')
+    setFeedbackComment('')
+
+    pushNotification('Feedback Recorded', `Quality feedback received for ${selectedComplaint.id}.`, 'success')
   }
 
-  const applySearch = () => {
-    setAppliedSearch(searchInput.trim())
-  }
+  const content = (() => {
+    switch (activeTab) {
+      case 'overview':
+        return (
+          <OverviewTab
+            userName={user?.name ?? 'Customer'}
+            metrics={metrics}
+            onNavigate={(tab) => setActiveTab(tab)}
+          />
+        )
+      case 'raise':
+        return (
+          <RaiseComplaintTab
+            title={newTitle}
+            category={newCategory}
+            location={newLocation}
+            priority={newPriority}
+            description={newDescription}
+            categoryOptions={categoryOptions}
+            formError={formError}
+            formMessage={formMessage}
+            onTitleChange={setNewTitle}
+            onCategoryChange={setNewCategory}
+            onLocationChange={setNewLocation}
+            onPriorityChange={setNewPriority}
+            onDescriptionChange={setNewDescription}
+            onSubmit={handleCreateComplaint}
+            onClear={clearRaiseForm}
+          />
+        )
+      case 'tracker':
+        return (
+          <TrackerTab
+            complaints={filteredComplaints}
+            totalCount={complaints.length}
+            searchInput={searchInput}
+            categoryFilter={categoryFilter}
+            statusFilter={statusFilter}
+            priorityFilter={priorityFilter}
+            sortOrder={sortOrder}
+            categories={categories}
+            statuses={statuses}
+            priorities={priorities}
+            onSearchInputChange={setSearchInput}
+            onCategoryChange={setCategoryFilter}
+            onStatusChange={setStatusFilter}
+            onPriorityChange={setPriorityFilter}
+            onSortChange={setSortOrder}
+            onApplySearch={applySearch}
+            onResetFilters={resetFilters}
+            selectedComplaintId={selectedComplaintId}
+            onSelectComplaint={setSelectedComplaintId}
+            onOpenWorkspace={() => setActiveTab('workspace')}
+          />
+        )
+      case 'workspace':
+        return (
+          <WorkspaceTab
+            complaint={selectedComplaint}
+            feedback={selectedComplaintFeedback}
+            feedbackRating={feedbackRating}
+            feedbackComment={feedbackComment}
+            uploadError={uploadError}
+            uploadMessage={uploadMessage}
+            feedbackError={feedbackError}
+            feedbackMessage={feedbackMessage}
+            onEvidenceUpload={handleEvidenceUpload}
+            onFeedbackRatingChange={setFeedbackRating}
+            onFeedbackCommentChange={setFeedbackComment}
+            onSubmitFeedback={submitFeedback}
+            onReopen={handleReopenRequest}
+            onCopyComplaintId={copyComplaintId}
+          />
+        )
+      case 'billing':
+        return <BillingTab invoices={invoices} onPayInvoice={makePayment} />
+      case 'notifications':
+        return (
+          <NotificationsTab
+            notifications={notifications}
+            onMarkRead={markNotificationAsRead}
+            onMarkAllRead={markAllNotificationsAsRead}
+            onClearRead={clearReadNotifications}
+          />
+        )
+      case 'profile':
+        return (
+          <ProfileTab
+            profile={{
+              name: user?.name ?? 'Customer User',
+              email: user?.email ?? 'customer@gbu.ac.in',
+              role: (user?.role ?? 'customer').replace('_', ' ').toUpperCase(),
+              department: user?.department ?? 'Student Services',
+            }}
+            phone={profilePhone}
+            hostelAddress={profileHostel}
+            emailAlerts={profileEmailAlerts}
+            whatsappAlerts={profileWhatsappAlerts}
+            message={profileMessage}
+            onPhoneChange={(value) => {
+              setProfilePhone(value)
+              setProfileMessage('')
+            }}
+            onHostelAddressChange={(value) => {
+              setProfileHostel(value)
+              setProfileMessage('')
+            }}
+            onEmailAlertsChange={(value) => {
+              setProfileEmailAlerts(value)
+              setProfileMessage('')
+            }}
+            onWhatsappAlertsChange={(value) => {
+              setProfileWhatsappAlerts(value)
+              setProfileMessage('')
+            }}
+            onSave={saveProfileSettings}
+          />
+        )
+      default:
+        return null
+    }
+  })()
 
   return (
-    <main className="px-4 py-8 md:px-8 lg:px-12">
-      <div className="mx-auto max-w-7xl space-y-6">
-        <header className="rounded-2xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-6 shadow-sm">
-          <h1 className="text-2xl font-bold md:text-3xl">Customer Dashboard Advanced</h1>
-          <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
-            Features: file upload UI, status badges, complaint filters/search, mobile responsive
-            layout, and dark mode support.
-          </p>
-          <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
-            Advanced layer designed to work with Group 2's Basic Customer Dashboard module.
-          </p>
-        </header>
-
-        <section className="grid gap-6 xl:grid-cols-3">
-          <article className="rounded-2xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-5 shadow-sm xl:col-span-2">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-lg font-semibold">Complaints</h2>
-              <span className="text-xs text-[rgb(var(--color-text-secondary))]">
-                {filteredComplaints.length} of {sampleComplaints.length}
-              </span>
-            </div>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              <input
-                value={searchInput}
-                onChange={(event) => setSearchInput(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
-                    applySearch()
-                  }
-                }}
-                placeholder="Search by complaint ID or title"
-                className="min-w-[220px] rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-2 text-xs"
-              />
-              <button
-                type="button"
-                onClick={applySearch}
-                className="rounded-lg bg-[rgb(var(--color-primary))] px-3 py-2 text-xs font-medium text-white"
-              >
-                Search
-              </button>
-              <select
-                value={categoryFilter}
-                onChange={(event) => setCategoryFilter(event.target.value)}
-                className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-2 text-xs"
-              >
-                {categories.map((category) => (
-                  <option key={category}>{category}</option>
-                ))}
-              </select>
-              <select
-                value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value)}
-                className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-2 text-xs"
-              >
-                {statuses.map((status) => (
-                  <option key={status}>{status}</option>
-                ))}
-              </select>
-              <select
-                value={sortOrder}
-                onChange={(event) => setSortOrder(event.target.value as SortOrder)}
-                className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-2 text-xs"
-              >
-                <option>Newest First</option>
-                <option>Oldest First</option>
-              </select>
-              <button
-                type="button"
-                onClick={resetFilters}
-                className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-2 text-xs font-medium"
-              >
-                Reset
-              </button>
-            </div>
-
-            <div className="mt-4 space-y-3">
-              {filteredComplaints.length > 0 ? (
-                filteredComplaints.map((complaint) => (
-                  <div
-                    key={complaint.id}
-                    className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-3"
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-xs font-semibold text-[rgb(var(--color-text-secondary))]">
-                        {complaint.id}
-                      </p>
-                      <span
-                        className={[
-                          'rounded-full border px-2 py-1 text-xs font-semibold',
-                          statusBadgeClasses[complaint.status],
-                        ].join(' ')}
-                      >
-                        {complaint.status}
-                      </span>
-                    </div>
-                    <h3 className="mt-2 text-sm font-semibold">{complaint.title}</h3>
-                    <p className="mt-1 text-xs text-[rgb(var(--color-text-secondary))]">
-                      {complaint.category} • {complaint.updatedAt}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <p className="rounded-xl border border-dashed border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-3 text-sm text-[rgb(var(--color-text-secondary))]">
-                  No complaints found.
-                </p>
-              )}
-            </div>
-          </article>
-
-          <article className="rounded-2xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-5 shadow-sm">
-            <h2 className="text-lg font-semibold">Upload Attachment</h2>
-            <p className="mt-1 text-xs text-[rgb(var(--color-text-secondary))]">
-              JPG, PNG, MP4 up to 10MB
-            </p>
-            <div className="mt-4 space-y-3">
-              <label
-                htmlFor="attachment-upload"
-                className="block cursor-pointer rounded-xl border border-dashed border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-5 text-center text-sm text-[rgb(var(--color-text-secondary))]"
-              >
-                Choose file(s)
-              </label>
-              <input
-                id="attachment-upload"
-                type="file"
-                multiple
-                accept=".jpg,.jpeg,.png,.mp4"
-                onChange={(event) => handleFileSelection(event.target.files)}
-                className="hidden"
-              />
-
-              {selectedFiles.length > 0 ? (
-                <ul className="space-y-2">
-                  {selectedFiles.map((file) => (
-                    <li
-                      key={`${file.name}-${file.size}`}
-                      className="flex items-center justify-between gap-2 rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-2 text-xs"
-                    >
-                      <span className="truncate">
-                        {file.name} ({(file.size / (1024 * 1024)).toFixed(2)} MB)
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => removeFile(file.name)}
-                        className="rounded-md border border-[rgb(var(--color-border))] px-2 py-1"
-                      >
-                        Remove
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-
-              {uploadError ? (
-                <p className="text-xs font-medium text-[rgb(var(--color-danger))]">{uploadError}</p>
-              ) : null}
-              {uploadMessage ? (
-                <p className="text-xs font-medium text-[rgb(var(--color-success))]">{uploadMessage}</p>
-              ) : null}
-
-              <button
-                type="button"
-                onClick={handleUpload}
-                className="w-full rounded-xl bg-[rgb(var(--color-primary))] px-4 py-2.5 text-sm font-semibold text-white"
-              >
-                Upload
-              </button>
-            </div>
-
-            <div className="mt-5 flex flex-wrap gap-2">
-              {Object.keys(statusBadgeClasses).map((status) => (
-                <span
-                  key={status}
-                  className={[
-                    'inline-flex rounded-full border px-2 py-1 text-xs font-semibold',
-                    statusBadgeClasses[status as ComplaintStatus],
-                  ].join(' ')}
-                >
-                  {status}
-                </span>
-              ))}
-            </div>
-            <div className="mt-4 space-y-1 text-xs text-[rgb(var(--color-text-secondary))]">
-              <p>
-                <span className="font-semibold text-[rgb(var(--color-text-primary))]">Open:</span>{' '}
-                Complaint is submitted and waiting for assignment.
-              </p>
-              <p>
-                <span className="font-semibold text-[rgb(var(--color-text-primary))]">
-                  In Progress:
-                </span>{' '}
-                Technician has started work on the complaint.
-              </p>
-              <p>
-                <span className="font-semibold text-[rgb(var(--color-text-primary))]">
-                  Closed (Resolved):
-                </span>{' '}
-                Work is completed and complaint is closed.
-              </p>
-            </div>
-          </article>
-        </section>
-        <footer className="rounded-2xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] px-5 py-4 text-center text-sm text-[rgb(var(--color-text-secondary))] shadow-sm">
-          Made by 235UCS035 Aryan Rastogi and 235UCS062 Himanshi Gautam
-        </footer>
+    <main className="min-h-screen bg-[rgb(var(--color-bg))] px-4 py-7 md:px-8 lg:h-screen lg:overflow-hidden lg:px-12 lg:py-4">
+      <div className="mx-auto grid max-w-7xl gap-6 lg:h-full lg:grid-cols-[300px_1fr]">
+        <CustomerSidebar
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          counts={sidebarCounts}
+          userInfo={{
+            name: user?.name ?? 'Customer User',
+          }}
+          onProfileClick={() => setActiveTab('profile')}
+          onLogout={() => {
+            logout()
+            navigate('/login')
+          }}
+        />
+        <div className="lg:h-full lg:overflow-y-auto lg:pr-1">{content}</div>
       </div>
     </main>
   )
