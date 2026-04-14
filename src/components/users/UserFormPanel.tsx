@@ -31,7 +31,7 @@ function UserFormPanel() {
         <label className="text-sm text-[var(--text-secondary)]">
           <span className="mb-2 block font-medium">Department</span>
           <select className={fieldClassName}>
-            <option>Engineering Services</option>
+            <option>IT Support</option>
             <option>Security Office</option>
             <option>Campus Operations</option>
           </select>
@@ -39,17 +39,20 @@ function UserFormPanel() {
         <label className="text-sm text-[var(--text-secondary)]">
           <span className="mb-2 block font-medium">Campus</span>
           <select className={fieldClassName}>
-            <option>Main Campus</option>
-            <option>North Campus</option>
-            <option>Research Park</option>
+            <option>Campus</option>
+            <option>Department</option>
+            <option>School</option>
+            <option>Hostel</option>
+            <option>Faculty House</option>
           </select>
         </label>
         <label className="text-sm text-[var(--text-secondary)]">
           <span className="mb-2 block font-medium">Role</span>
           <select className={fieldClassName}>
             <option>SUPER_ADMIN</option>
-            <option>SECURITY_ADMIN</option>
-            <option>OPS_ADMIN</option>
+            <option>User</option>
+            <option>Technician</option>
+            <option>Vendor</option>
           </select>
         </label>
         <label className="text-sm text-[var(--text-secondary)]">

@@ -50,7 +50,7 @@ const technicianMetadata: Record<string, Omit<TechnicianManagementRecord, keyof 
     email: 'amit.yadav@gbu.ac.in',
     assignedVendor: 'XY Facilities',
     activeTasks: [
-      { id: 'CMP-2041', title: 'Main server room cooling issue', status: 'Open', createdDate: '11 Mar 2026', priority: 'High' },
+      { id: 'CMP-2041', title: 'Main server room cooling issue', status: 'New', createdDate: '11 Mar 2026', priority: 'High' },
     ],
     workHistory: [
       { id: 'CMP-1934', title: 'Cooling duct inspection', status: 'Resolved', createdDate: '28 Feb 2026', priority: 'Medium' },

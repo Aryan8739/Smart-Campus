@@ -17,7 +17,7 @@ import {
   type VendorFormValues,
   type VendorManagementRecord,
 } from '../../services/vendorService'
-import type { VendorRecord } from '../../features/userAccess/types'
+import type { ComplaintRecord, VendorRecord } from '../../features/userAccess/types'
 
 const defaultFilters: VendorFilterState = {
   category: 'All',
@@ -37,8 +37,47 @@ function isValidPhone(value: string) {
 function VendorOverview() {
   const { vendors, complaints, technicians } = useAdminModule()
   const { can } = usePermissions()
-  const [vendorItems, setVendorItems] = useState<VendorManagementRecord[]>([])
-  const [complaintItems, setComplaintItems] = useState(complaints)
+  const initialVendorItems = useMemo(
+    () => buildVendorRecords(vendors, complaints, technicians),
+    [vendors, complaints, technicians]
+  )
+  const viewKey = useMemo(
+    () =>
+      [
+        vendors.map((vendor) => `${vendor.id}:${vendor.name}:${vendor.campus}:${vendor.activeTickets}:${vendor.slaScore}`).join(','),
+        complaints.map((complaint) => `${complaint.id}:${complaint.status}:${complaint.vendor}:${complaint.technician}`).join(','),
+        technicians.map((technician) => `${technician.id}:${technician.name}:${technician.campus}`).join(','),
+      ].join('|'),
+    [vendors, complaints, technicians]
+  )
+
+  return (
+    <VendorOverviewContent
+      key={viewKey}
+      baseVendors={vendors}
+      initialComplaintItems={complaints}
+      initialVendorItems={initialVendorItems}
+      canAssignComplaints={can('COMPLAINT_ASSIGN')}
+      canCreateVendor={can('VENDOR_CREATE')}
+    />
+  )
+}
+
+function VendorOverviewContent({
+  baseVendors,
+  initialComplaintItems,
+  initialVendorItems,
+  canAssignComplaints,
+  canCreateVendor,
+}: {
+  baseVendors: VendorRecord[]
+  initialComplaintItems: ComplaintRecord[]
+  initialVendorItems: VendorManagementRecord[]
+  canAssignComplaints: boolean
+  canCreateVendor: boolean
+}) {
+  const [vendorItems, setVendorItems] = useState(initialVendorItems)
+  const [complaintItems, setComplaintItems] = useState(initialComplaintItems)
   const [filters, setFilters] = useState<VendorFilterState>(defaultFilters)
   const [feedback, setFeedback] = useState<string | null>(null)
   const [detailVendorId, setDetailVendorId] = useState<string | null>(null)
@@ -50,11 +89,6 @@ function VendorOverview() {
   const [deleteBlockedMessage, setDeleteBlockedMessage] = useState<string | null>(null)
   const [assignmentVendorId, setAssignmentVendorId] = useState<string | null>(null)
   const [selectedComplaintId, setSelectedComplaintId] = useState('')
-
-  useEffect(() => {
-    setVendorItems(buildVendorRecords(vendors, complaints, technicians))
-    setComplaintItems(complaints)
-  }, [vendors, complaints, technicians])
 
   useEffect(() => {
     if (!feedback) return undefined
@@ -312,12 +346,12 @@ function VendorOverview() {
         title="Vendor Overview"
         action={
           <div className="flex flex-wrap gap-2">
-            {can('COMPLAINT_ASSIGN') ? (
+            {canAssignComplaints ? (
               <button onClick={() => openAssignmentModal()} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)]">
                 Assign Work
               </button>
             ) : null}
-            {can('VENDOR_CREATE') ? (
+            {canCreateVendor ? (
               <button onClick={openAddVendor} className="rounded-xl bg-[rgb(var(--color-primary))] px-4 py-2 text-sm font-semibold text-white">
                 + Add Vendor
               </button>
@@ -460,7 +494,7 @@ function VendorOverview() {
 
       <DataPanel title="Existing Vendor Snapshot">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {vendors.map((vendor: VendorRecord) => (
+          {baseVendors.map((vendor) => (
             <div key={vendor.id} className="rounded-[1.1rem] border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4 shadow-sm">
               <p className="font-semibold text-[var(--text-primary)]">{vendor.name}</p>
               <p className="mt-1 text-sm text-[var(--text-secondary)]">{vendor.category}</p>

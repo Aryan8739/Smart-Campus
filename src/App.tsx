@@ -82,6 +82,7 @@ function App() {
               <Route path="activity-logs" element={<ActivityLogsPage />} />
               <Route path="notifications" element={<NotificationCenterPage />} />
               <Route path="settings" element={<SettingsPage />} />
+              <Route path="*" element={<Navigate to="dashboard" replace />} />
             </Route>
             
             {/* Redirect old user-access route to new structure */}

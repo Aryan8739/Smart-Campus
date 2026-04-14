@@ -13,14 +13,15 @@ const priorityTone = {
 } as const
 
 const statusTone = {
-  Open: 'warning',
+  New: 'info',
+  'In Review': 'warning',
   Assigned: 'info',
   Escalated: 'danger',
   Resolved: 'success',
 } as const
 
 function ComplaintMonitoring() {
-  const { complaints, vendors, technicians } = useAdminModule()
+  const { complaints, filters, vendors, technicians } = useAdminModule()
   const { can } = usePermissions()
   const [complaintItems, setComplaintItems] = useState(complaints)
   const [isAssignOpen, setIsAssignOpen] = useState(false)
@@ -106,6 +107,12 @@ function ComplaintMonitoring() {
           </div>
         ) : null}
 
+        {filters.complaintStatus !== 'All' ? (
+          <div className="mb-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-3 text-sm text-[var(--text-secondary)]">
+            Active complaint status filter: <span className="font-semibold text-[var(--text-primary)]">{filters.complaintStatus}</span>
+          </div>
+        ) : null}
+
         <div className="space-y-3">
           {complaintItems.map((complaint) => (
             <article
@@ -131,6 +138,11 @@ function ComplaintMonitoring() {
               </div>
             </article>
           ))}
+          {complaintItems.length === 0 ? (
+            <div className="rounded-[1.1rem] border border-dashed border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-8 text-center text-sm text-[var(--text-secondary)]">
+              No complaints found for the current lifecycle filter.
+            </div>
+          ) : null}
         </div>
       </DataPanel>
 
