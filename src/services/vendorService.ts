@@ -57,9 +57,9 @@ const vendorMetadata: Record<string, Omit<VendorManagementRecord, keyof VendorRe
     contactPerson: 'Rohan Sharma',
     phone: '+91 98990 12011',
     email: 'rohan.sharma@xyfacilities.com',
-    serviceArea: 'Main Campus / Academic Block',
+    serviceArea: 'Campus / Academic Block',
     assignedTechnicians: [
-      { name: 'Sneha Verma', department: 'Central Operations', activeAssignments: 3 },
+      { name: 'Sneha Verma', department: 'Plumbing Maintenance', activeAssignments: 3 },
       { name: 'Amit Yadav', department: 'Civil Works', activeAssignments: 2 },
     ],
     complaintHistory: [
@@ -212,7 +212,7 @@ export function getEmptyVendorForm(): VendorFormValues {
     phone: '',
     email: '',
     serviceArea: '',
-    campus: 'Main Campus',
+    campus: 'Campus',
     slaAgreement: '90',
     status: 'Active',
   }

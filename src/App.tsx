@@ -59,6 +59,7 @@ function App() {
               <Route path="activity-logs" element={<ActivityLogsPage />} />
               <Route path="notifications" element={<NotificationCenterPage />} />
               <Route path="settings" element={<SettingsPage />} />
+              <Route path="*" element={<Navigate to="dashboard" replace />} />
             </Route>
             <Route path="modules/user-access" element={<Navigate to="/user-access/dashboard" replace />} />
             <Route path="modules/complaint-intake" element={<ComplaintIntakePage />} />

@@ -7,7 +7,7 @@ export interface UserAccessKpi {
   insight: string
 }
 
-export type CampusCode = 'Main Campus' | 'North Campus' | 'Research Park'
+export type CampusCode = 'Campus' | 'North Campus' | 'Research Park'
 export type ApprovalState = 'Pending' | 'Approved' | 'Rejected'
 export type UserStatus = 'Active' | 'Pending Approval' | 'Locked' | 'Suspended'
 export type SessionStatus = 'Online' | 'Offline' | 'Timeout Soon' | 'Force Logout Suggested'

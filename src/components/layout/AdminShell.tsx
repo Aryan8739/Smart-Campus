@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useAdminFilters } from '../../features/userAccess/hooks/useAdminFilters'
 import AdminTopbar from './AdminTopbar'
@@ -16,11 +16,11 @@ const sidebarGroups = [
     ],
   },
   {
-    title: 'Operations Monitoring',
+    title: 'Operations Management',
     items: [
-      { label: 'Complaint Monitoring', to: '/user-access/complaints' },
-      { label: 'Vendor Overview', to: '/user-access/vendors' },
-      { label: 'Technician Overview', to: '/user-access/technicians' },
+      { label: 'Complaint Management', to: '/user-access/complaints' },
+      { label: 'Vendor Management', to: '/user-access/vendors' },
+      { label: 'Technician Management', to: '/user-access/technicians' },
     ],
   },
   {
@@ -46,14 +46,57 @@ const sidebarGroups = [
   },
 ]
 
+function resolveGroupTitle(pathname: string) {
+  return (
+    sidebarGroups.find((group) => group.items.some((item) => item.to === pathname))?.title
+    ?? sidebarGroups[0].title
+  )
+}
+
+function AdminSidebar({ activeGroupTitle }: { activeGroupTitle: string }) {
+  const [openGroupTitle, setOpenGroupTitle] = useState(activeGroupTitle)
+
+  return (
+    <aside className="relative flex h-full flex-col justify-between overflow-y-auto border-r border-[var(--border-color)] bg-[var(--sidebar-panel-bg)] px-4 py-6 text-slate-800 dark:bg-slate-900 dark:text-slate-200">
+      <div>
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border-4 border-white/90 bg-[rgba(241,245,249,0.95)] shadow-sm dark:border-white/10 dark:bg-slate-800">
+          <img src="/gbuLogo.png" alt="GBU" className="h-9 w-9 rounded-full object-cover" />
+        </div>
+        <p className="mt-3 text-center text-[11px] tracking-[0.14em] text-slate-600 dark:text-slate-300">SUPER ADMIN DASHBOARD</p>
+        <div className="mt-6 space-y-4">
+          {sidebarGroups.map((group) => (
+            <SidebarGroup
+              key={group.title}
+              title={group.title}
+              items={group.items}
+              isOpen={openGroupTitle === group.title}
+              onToggle={() => setOpenGroupTitle((current) => (current === group.title ? '' : group.title))}
+              onItemSelect={() => setOpenGroupTitle(group.title)}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex justify-center gap-2 text-slate-500 dark:text-slate-400">
+          <span className="h-2 w-2 rounded-full bg-slate-400 dark:bg-slate-500" />
+          <span className="h-2 w-2 rounded-full bg-slate-400 dark:bg-slate-500" />
+          <span className="h-2 w-2 rounded-full border border-slate-400 dark:border-slate-500" />
+        </div>
+        <p className="text-center text-[11px] tracking-[0.26em] text-slate-500 dark:text-slate-400">UCC GROUP 1</p>
+      </div>
+    </aside>
+  )
+}
+
 const pageTitles: Record<string, string> = {
   '/user-access/dashboard': 'Dashboard',
   '/user-access/users': 'User Management',
   '/user-access/roles-access': 'Role & Permission Matrix',
   '/user-access/sessions': 'Sessions',
-  '/user-access/complaints': 'Complaint Monitoring',
-  '/user-access/vendors': 'Vendor Overview',
-  '/user-access/technicians': 'Technician Overview',
+  '/user-access/complaints': 'Complaint Management',
+  '/user-access/vendors': 'Vendor Management',
+  '/user-access/technicians': 'Technician Management',
   '/user-access/reports': 'Reports',
   '/user-access/analytics': 'Analytics',
   '/user-access/audit-logs': 'Audit Logs',
@@ -65,13 +108,7 @@ const pageTitles: Record<string, string> = {
 function AdminShell() {
   const adminModule = useAdminFilters()
   const location = useLocation()
-  const resolveGroupTitle = (pathname: string) =>
-    sidebarGroups.find((group) => group.items.some((item) => item.to === pathname))?.title ?? sidebarGroups[0].title
-  const [openGroupTitle, setOpenGroupTitle] = useState(() => resolveGroupTitle(location.pathname))
-
-  useEffect(() => {
-    setOpenGroupTitle(resolveGroupTitle(location.pathname))
-  }, [location.pathname])
+  const activeGroupTitle = resolveGroupTitle(location.pathname)
 
   return (
     <main className="relative h-screen overflow-hidden bg-[var(--bg-primary)] px-2 py-3 md:px-4 md:py-5">
@@ -88,35 +125,7 @@ function AdminShell() {
       <div className="mx-auto flex h-full w-full max-w-[1800px]">
         <div className="flex h-full w-full overflow-hidden rounded-[1.9rem] bg-[var(--card-bg)] shadow-[0_34px_80px_-48px_rgba(37,60,109,0.22)] ring-1 ring-[var(--border-color)] dark:bg-slate-950/85 dark:shadow-[0_34px_80px_-48px_rgba(2,6,23,0.85)]">
           <div className="grid h-full w-full lg:grid-cols-[248px_1fr]">
-            <aside className="relative flex h-full flex-col justify-between overflow-y-auto border-r border-[var(--border-color)] bg-[var(--sidebar-panel-bg)] px-4 py-6 text-slate-800 dark:bg-slate-900 dark:text-slate-200">
-              <div>
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border-4 border-white/90 bg-[rgba(241,245,249,0.95)] shadow-sm dark:border-white/10 dark:bg-slate-800">
-                  <img src="/gbuLogo.png" alt="GBU" className="h-9 w-9 rounded-full object-cover" />
-                </div>
-                <p className="mt-3 text-center text-[11px] tracking-[0.14em] text-slate-600 dark:text-slate-300">SUPER ADMIN DASHBOARD</p>
-                <div className="mt-6 space-y-4">
-                  {sidebarGroups.map((group) => (
-                    <SidebarGroup
-                      key={group.title}
-                      title={group.title}
-                      items={group.items}
-                      isOpen={openGroupTitle === group.title}
-                      onToggle={() => setOpenGroupTitle((current) => (current === group.title ? '' : group.title))}
-                      onItemSelect={() => setOpenGroupTitle(group.title)}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex justify-center gap-2 text-slate-500 dark:text-slate-400">
-                  <span className="h-2 w-2 rounded-full bg-slate-400 dark:bg-slate-500" />
-                  <span className="h-2 w-2 rounded-full bg-slate-400 dark:bg-slate-500" />
-                  <span className="h-2 w-2 rounded-full border border-slate-400 dark:border-slate-500" />
-                </div>
-                <p className="text-center text-[11px] tracking-[0.26em] text-slate-500 dark:text-slate-400">UCC GROUP 1</p>
-              </div>
-            </aside>
+            <AdminSidebar key={activeGroupTitle} activeGroupTitle={activeGroupTitle} />
 
             <div className="flex min-h-0 min-w-0 flex-col bg-[var(--bg-primary)]">
               <section className="relative flex-none overflow-hidden border-b border-[var(--border-color)] bg-[var(--topbar-bg)] px-5 py-6 md:px-9">

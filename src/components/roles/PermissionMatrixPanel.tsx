@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import {
   calculateCoverage,
   flattenPermissionKeys,
@@ -62,13 +62,13 @@ function PermissionMatrixPanel({
   const [mode, setMode] = useState<'create' | 'edit' | null>(null)
   const [draft, setDraft] = useState<PermissionDraft>(emptyDraft)
   const [pendingDeletePermission, setPendingDeletePermission] = useState<PermissionDefinition | null>(null)
-
-  useEffect(() => {
-    if (!sortedRoles.some((role) => role.id === selectedRoleId)) setSelectedRoleId(sortedRoles[0]?.id ?? '')
-    if (!sortedRoles.some((role) => role.id === copyFromRoleId)) setCopyFromRoleId(sortedRoles[1]?.id ?? sortedRoles[0]?.id ?? '')
-  }, [copyFromRoleId, selectedRoleId, sortedRoles])
-
-  const selectedRole = sortedRoles.find((role) => role.id === selectedRoleId) ?? sortedRoles[0]
+  const activeSelectedRoleId = sortedRoles.some((role) => role.id === selectedRoleId)
+    ? selectedRoleId
+    : (sortedRoles[0]?.id ?? '')
+  const activeCopyFromRoleId = sortedRoles.some((role) => role.id === copyFromRoleId && role.id !== activeSelectedRoleId)
+    ? copyFromRoleId
+    : (sortedRoles.find((role) => role.id !== activeSelectedRoleId)?.id ?? activeSelectedRoleId)
+  const selectedRole = sortedRoles.find((role) => role.id === activeSelectedRoleId) ?? sortedRoles[0]
   const visibleCategories = permissionCatalog
     .map((category) => ({
       ...category,
@@ -221,7 +221,7 @@ function PermissionMatrixPanel({
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search permissions, labels, or descriptions" className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none lg:max-w-md" />
           <div className="flex flex-wrap gap-2">
             {sortedRoles.map((role) => (
-              <button key={role.id} onClick={() => setSelectedRoleId(role.id)} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${selectedRoleId === role.id ? 'bg-[rgb(var(--color-primary))] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] border border-[var(--border-color)]'}`}>{role.name}</button>
+              <button key={role.id} onClick={() => setSelectedRoleId(role.id)} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${activeSelectedRoleId === role.id ? 'bg-[rgb(var(--color-primary))] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] border border-[var(--border-color)]'}`}>{role.name}</button>
             ))}
           </div>
         </div>
@@ -230,11 +230,11 @@ function PermissionMatrixPanel({
           <div className="flex flex-wrap items-center gap-2">
             <button onClick={() => applyBulk((permission) => !getPermissionBlockReason(selectedRole.id, permission), 'Bulk action applied: Allow All while respecting hierarchy ceilings.')} className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white">Allow All</button>
             <button onClick={() => applyBulk(() => false, 'Bulk action applied: Deny All permissions for the selected role.')} className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white">Deny All</button>
-            <select value={copyFromRoleId} onChange={(e) => setCopyFromRoleId(e.target.value)} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none">
-              {sortedRoles.filter((role) => role.id !== selectedRoleId).map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}
+            <select value={activeCopyFromRoleId} onChange={(e) => setCopyFromRoleId(e.target.value)} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none">
+              {sortedRoles.filter((role) => role.id !== activeSelectedRoleId).map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}
             </select>
             <button onClick={() => {
-              const sourceRole = roles.find((role) => role.id === copyFromRoleId)
+              const sourceRole = roles.find((role) => role.id === activeCopyFromRoleId)
               if (!sourceRole || !selectedRole) return
               applyBulk((permission) => !getPermissionBlockReason(selectedRole.id, permission) && Boolean(sourceRole.permissions[permission]), `Copied permissions from ${sourceRole.name}.`)
             }} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)]">Copy Permissions From Role</button>
@@ -287,8 +287,8 @@ function PermissionMatrixPanel({
             </thead>
             <tbody>
               {visibleCategories.map((category) => (
-                <>
-                  <tr key={category.category}>
+                <Fragment key={category.category}>
+                  <tr>
                     <td colSpan={sortedRoles.length + 1} className="border-b border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-3 text-sm font-semibold text-[var(--text-primary)]">{category.category}</td>
                   </tr>
                   {category.permissions.map((permission, index) => (
@@ -311,7 +311,7 @@ function PermissionMatrixPanel({
                       })}
                     </tr>
                   ))}
-                </>
+                </Fragment>
               ))}
             </tbody>
           </table>

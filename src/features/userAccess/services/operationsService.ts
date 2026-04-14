@@ -4,7 +4,7 @@ export const complaintRecords: ComplaintRecord[] = [
   {
     id: 'CMP-2041',
     title: 'Main server room cooling issue',
-    campus: 'Main Campus',
+    campus: 'Campus',
     department: 'IT Infrastructure',
     status: 'Open',
     priority: 'High',
@@ -40,7 +40,7 @@ export const vendorRecords: VendorRecord[] = [
   {
     id: 'VEN-1',
     name: 'XY Facilities',
-    campus: 'Main Campus',
+    campus: 'Campus',
     category: 'Electrical and surveillance maintenance',
     activeTickets: 14,
     slaScore: 96,
@@ -88,8 +88,8 @@ export const technicianRecords: TechnicianRecord[] = [
   {
     id: 'TEC-3',
     name: 'Sneha Verma',
-    campus: 'Main Campus',
-    department: 'Central Operations',
+    campus: 'Campus',
+    department: 'Plumbing Maintenance',
     assignedTasks: 6,
     completionRate: 94,
     risk: 'Low',

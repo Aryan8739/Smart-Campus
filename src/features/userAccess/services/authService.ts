@@ -3,12 +3,12 @@ import type { ActiveSession, AutomationSettings } from '../types'
 export const sessionRecords: ActiveSession[] = [
   {
     id: 'SES-8801',
-    user: 'Sneha Verma',
+    user: ' Ashish Bharti',
     role: 'SECURITY_ADMIN',
     device: 'Windows 11 / Edge',
-    location: 'GBU Main Campus, Greater Noida',
-    campus: 'Main Campus',
-    department: 'Central Operations',
+    location: 'GBU Campus, Greater Noida',
+    campus: 'Campus',
+    department: 'Plumbing Maintenance',
     risk: 'Low',
     lastSeen: '2 minutes ago',
     durationMinutes: 194,

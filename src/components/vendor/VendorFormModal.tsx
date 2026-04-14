@@ -103,7 +103,7 @@ function VendorFormModal({
               onChange={(event) => onChange({ ...value, campus: event.target.value as VendorFormValues['campus'] })}
               className={fieldClassName}
             >
-              <option value="Main Campus">Main Campus</option>
+              <option value="Campus">Campus</option>
               <option value="North Campus">North Campus</option>
               <option value="Research Park">Research Park</option>
             </select>
