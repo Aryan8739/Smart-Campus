@@ -21,8 +21,8 @@ type RoleDraft = {
 }
 
 const roleLevels: RoleLevel[] = ['Super Admin', 'Security Admin', 'Operations Admin', 'Custom']
-const departmentOptions = ['All Departments', 'Central Admin Dashboard', 'Security Office', 'Campus Operations', 'Engineering Services']
-const campusOptions: CampusCode[] = ['Main Campus', 'North Campus', 'Research Park']
+const departmentOptions = ['All Departments', 'Central Admin Dashboard', 'Security Office', 'Campus Operations', 'IT Support']
+const campusOptions: CampusCode[] = ['Campus', 'North Campus', 'Research Park']
 
 const badgeStyles: Record<RoleDefinition['badgeColor'], string> = {
   slate: 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-100',
@@ -41,7 +41,7 @@ function createDraft(role?: RoleDefinition): RoleDraft {
     owner: role?.owner ?? '',
     policy: role?.policy ?? '',
     departmentAccess: role?.departmentAccess ?? ['All Departments'],
-    campusAccess: role?.campusAccess ?? ['Main Campus'],
+    campusAccess: role?.campusAccess ?? ['Campus'],
     defaultPermissions: role?.defaultPermissions ?? [],
     priority: role?.priority ?? 5,
     isActive: role?.isActive ?? true,

@@ -66,8 +66,8 @@ export function flattenPermissionKeys(categories: PermissionCategory[]) {
   return flattenPermissionDefinitions(categories).map((permission) => permission.key)
 }
 
-const allCampuses: CampusCode[] = ['Main Campus', 'North Campus', 'Research Park']
-const allDepartments = ['All Departments', 'Security Office', 'Campus Operations', 'Central Admin Dashboard', 'Engineering Services']
+const allCampuses: CampusCode[] = ['Campus', 'North Campus', 'Research Park']
+const allDepartments = ['All Departments', 'Security Office', 'Campus Operations', 'Central Admin Dashboard', 'IT Support']
 
 export function createPermissionState(enabledPermissions: string[], categories: PermissionCategory[]) {
   const enabled = new Set(enabledPermissions)
@@ -185,7 +185,7 @@ export const roleRecords: RoleDefinition[] = [
     owner: 'Campus Operations',
     members: 18,
     policy: 'Operational oversight with constrained governance authority.',
-    departmentAccess: ['Campus Operations', 'Engineering Services'],
+    departmentAccess: ['Campus Operations', 'IT Support'],
     campusAccess: allCampuses,
     defaultPermissions: [
       'USER_EDIT',
@@ -210,11 +210,11 @@ export const roleRecords: RoleDefinition[] = [
     name: 'Technician',
     description: 'Execution-focused role for field service operations.',
     level: 'Custom',
-    owner: 'Engineering Services',
+    owner: 'IT Support',
     members: 46,
     policy: 'Work-order execution with limited operational visibility.',
-    departmentAccess: ['Engineering Services'],
-    campusAccess: ['Main Campus', 'North Campus'],
+    departmentAccess: ['IT Support'],
+    campusAccess: ['Campus', 'North Campus'],
     defaultPermissions: ['COMPLAINT_VIEW', 'TECHNICIAN_ASSIGN'],
     priority: 4,
     isSystem: true,
@@ -252,8 +252,8 @@ export const roleTemplates = [
     owner: 'Template Library',
     members: 0,
     policy: 'Department service supervision with controlled reporting access.',
-    departmentAccess: ['Engineering Services', 'Campus Operations'],
-    campusAccess: ['Main Campus'],
+    departmentAccess: ['IT Support', 'Campus Operations'],
+    campusAccess: ['Campus'],
     defaultPermissions: ['USER_EDIT', 'COMPLAINT_VIEW', 'COMPLAINT_ASSIGN', 'TECHNICIAN_ASSIGN', 'EXPORT_REPORTS'],
     priority: 4,
     isSystem: false,

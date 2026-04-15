@@ -17,6 +17,7 @@ import {
   type TechnicianFormValues,
   type TechnicianManagementRecord,
 } from '../../services/technicianService'
+import type { ComplaintRecord, VendorRecord } from '../../features/userAccess/types'
 
 const defaultFilters: TechnicianFilterState = {
   skill: 'All',
@@ -36,8 +37,44 @@ function isValidPhone(value: string) {
 function TechnicianOverview() {
   const { technicians, complaints, vendors } = useAdminModule()
   const { can } = usePermissions()
-  const [technicianItems, setTechnicianItems] = useState<TechnicianManagementRecord[]>([])
-  const [complaintItems, setComplaintItems] = useState(complaints)
+  const initialTechnicianItems = useMemo(
+    () => buildTechnicianRecords(technicians, complaints, vendors),
+    [technicians, complaints, vendors]
+  )
+  const viewKey = useMemo(
+    () =>
+      [
+        technicians.map((technician) => `${technician.id}:${technician.name}:${technician.campus}`).join(','),
+        complaints.map((complaint) => `${complaint.id}:${complaint.status}:${complaint.technician}`).join(','),
+        vendors.map((vendor) => `${vendor.id}:${vendor.name}:${vendor.campus}`).join(','),
+      ].join('|'),
+    [technicians, complaints, vendors]
+  )
+
+  return (
+    <TechnicianOverviewContent
+      key={viewKey}
+      initialComplaintItems={complaints}
+      initialTechnicianItems={initialTechnicianItems}
+      vendors={vendors}
+      canAssignComplaints={can('COMPLAINT_ASSIGN')}
+    />
+  )
+}
+
+function TechnicianOverviewContent({
+  initialComplaintItems,
+  initialTechnicianItems,
+  vendors,
+  canAssignComplaints,
+}: {
+  initialComplaintItems: ComplaintRecord[]
+  initialTechnicianItems: TechnicianManagementRecord[]
+  vendors: VendorRecord[]
+  canAssignComplaints: boolean
+}) {
+  const [technicianItems, setTechnicianItems] = useState(initialTechnicianItems)
+  const [complaintItems, setComplaintItems] = useState(initialComplaintItems)
   const [filters, setFilters] = useState<TechnicianFilterState>(defaultFilters)
   const [feedback, setFeedback] = useState<string | null>(null)
   const [detailTechnicianId, setDetailTechnicianId] = useState<string | null>(null)
@@ -49,11 +86,6 @@ function TechnicianOverview() {
   const [removeBlockedMessage, setRemoveBlockedMessage] = useState<string | null>(null)
   const [assignmentTechnicianId, setAssignmentTechnicianId] = useState<string | null>(null)
   const [selectedComplaintId, setSelectedComplaintId] = useState('')
-
-  useEffect(() => {
-    setTechnicianItems(buildTechnicianRecords(technicians, complaints, vendors))
-    setComplaintItems(complaints)
-  }, [technicians, complaints, vendors])
 
   useEffect(() => {
     if (!feedback) return undefined
@@ -148,7 +180,7 @@ function TechnicianOverview() {
       const nextTechnician: TechnicianManagementRecord = {
         id: `TEC-${Date.now()}`,
         name: formValue.name.trim(),
-        campus: vendors.find((vendor) => vendor.name === formValue.assignedVendor)?.campus ?? 'Main Campus',
+        campus: vendors.find((vendor) => vendor.name === formValue.assignedVendor)?.campus ?? 'Campus',
         department: formValue.department,
         assignedTasks: 0,
         completionRate: 0,
@@ -280,7 +312,7 @@ function TechnicianOverview() {
         title="Technician Overview"
         action={
           <div className="flex flex-wrap gap-2">
-            {can('COMPLAINT_ASSIGN') ? (
+            {canAssignComplaints ? (
               <button onClick={() => openAssignmentModal()} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)]">
                 Assign Task
               </button>
@@ -364,7 +396,7 @@ function TechnicianOverview() {
           value={formValue}
           errors={formErrors}
           vendors={vendorNames}
-          departments={departments.length ? departments : ['Central Operations']}
+          departments={departments.length ? departments : ['Plumbing Maintenance']}
           onChange={setFormValue}
           onClose={() => setFormMode(null)}
           onSubmit={handleSubmitForm}

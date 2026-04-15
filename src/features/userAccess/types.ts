@@ -7,12 +7,14 @@ export interface UserAccessKpi {
   insight: string
 }
 
-export type CampusCode = 'Main Campus' | 'North Campus' | 'Research Park'
+export type CampusCode = 'Campus' | 'North Campus' | 'Research Park'
 export type ApprovalState = 'Pending' | 'Approved' | 'Rejected'
 export type UserStatus = 'Active' | 'Pending Approval' | 'Locked' | 'Suspended'
 export type SessionStatus = 'Online' | 'Offline' | 'Timeout Soon' | 'Force Logout Suggested'
 export type RiskLevel = 'Low' | 'Moderate' | 'High'
 export type AuditOutcome = 'Success' | 'Warning' | 'Blocked'
+export type ComplaintLifecycleStatus = 'New' | 'In Review' | 'Assigned' | 'Resolved' | 'Escalated'
+export type ComplaintStatusFilter = 'All' | ComplaintLifecycleStatus
 
 export type AdminRoleKey = 'SUPER_ADMIN' | 'SECURITY_ADMIN' | 'OPS_ADMIN'
 export type RoleLevel = 'Super Admin' | 'Security Admin' | 'Operations Admin' | 'Custom'
@@ -158,7 +160,7 @@ export interface ComplaintRecord {
   title: string
   campus: CampusCode
   department: string
-  status: 'Open' | 'Assigned' | 'Escalated' | 'Resolved'
+  status: ComplaintLifecycleStatus
   priority: 'Low' | 'Medium' | 'High'
   vendor: string
   technician: string
@@ -217,13 +219,17 @@ export interface FilterState {
   role: 'All' | string
   status: 'All' | UserStatus
   approval: 'All' | ApprovalState
+  complaintStatus: ComplaintStatusFilter
 }
+
+export type ComplaintStatusCounts = Record<ComplaintLifecycleStatus, number>
 
 export interface AdminModuleContextValue {
   filters: FilterState
   setFilters: Dispatch<SetStateAction<FilterState>>
   users: ManagedUser[]
   complaints: ComplaintRecord[]
+  complaintsInScope: ComplaintRecord[]
   vendors: VendorRecord[]
   technicians: TechnicianRecord[]
   sessions: ActiveSession[]
@@ -233,6 +239,7 @@ export interface AdminModuleContextValue {
   reports: ReportRecord[]
   notifications: NotificationRecord[]
   automation: AutomationSettings
+  complaintStatusCounts: ComplaintStatusCounts
   kpis: {
     totalUsers: number
     activeUsers: number

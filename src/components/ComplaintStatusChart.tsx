@@ -1,12 +1,31 @@
-function ComplaintStatusChart() {
-  const segments = [
-    { value: 24, color: '#2c7fb8' },
-    { value: 19, color: '#58a9a6' },
-    { value: 21, color: '#90d1ca' },
-    { value: 17, color: '#b8dbe9' },
-    { value: 19, color: '#325c97' },
-  ]
+import { useMemo } from 'react'
+import { useAdminModule } from '../features/userAccess/hooks/useAdminModule'
+import type { ComplaintLifecycleStatus } from '../features/userAccess/types'
 
+const statusOrder: ComplaintLifecycleStatus[] = ['New', 'In Review', 'Assigned', 'Resolved', 'Escalated']
+const segmentColors: Record<ComplaintLifecycleStatus, string> = {
+  New: '#3b82f6',
+  'In Review': '#f59e0b',
+  Assigned: '#8b5cf6',
+  Resolved: '#10b981',
+  Escalated: '#ef4444',
+}
+
+function ComplaintStatusChart() {
+  const { complaintsInScope, complaints, filters, complaintStatusCounts } = useAdminModule()
+  const totalCount = complaintsInScope.length
+  const filteredCount = complaints.length
+  const segments = useMemo(
+    () =>
+      statusOrder
+        .map((status) => ({
+          status,
+          value: complaintStatusCounts[status],
+          color: segmentColors[status],
+        }))
+        .filter((segment) => segment.value > 0),
+    [complaintStatusCounts]
+  )
   let cumulative = 0
   const radius = 82
   const circumference = 2 * Math.PI * radius
@@ -37,68 +56,68 @@ function ComplaintStatusChart() {
               )
             })}
           </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <p className="text-[0.72rem] uppercase tracking-[0.38em] text-[var(--text-secondary)]">Status Mix</p>
-            <p className="mt-3 text-[2.45rem] font-semibold leading-none tracking-[-0.04em] text-[var(--text-primary)]">
-              100%
-            </p>
+          <div className="absolute inset-0 flex items-center justify-center px-8 text-center">
+            <div className="flex h-[118px] flex-col items-center justify-between">
+              <p className="mt-2 max-w-[104px] text-center text-[10px] font-medium uppercase leading-4 tracking-[0.18em] text-[var(--text-secondary)]">
+                Status Mix
+              </p>
+              <p className="text-[2.45rem] font-semibold leading-none tracking-[-0.04em] text-[var(--text-primary)]">
+                {filteredCount}
+              </p>
+              <p className="-mt-1 max-w-[105px] text-center text-[10px] leading-4 text-[var(--text-secondary)]">
+                {filters.complaintStatus === 'All' ? 'Complaints in current scope' : `${filters.complaintStatus} complaints`}
+              </p>
+            </div>
           </div>
         </div>
-        <div className="mt-10 flex max-w-[320px] flex-wrap justify-center gap-3 text-xs text-[var(--text-secondary)]">
-          <span className="rounded-full bg-[rgba(44,127,184,0.14)] px-4 py-2">New</span>
-          <span className="rounded-full bg-[rgba(88,169,166,0.14)] px-4 py-2">In Review</span>
-          <span className="rounded-full bg-[rgba(144,209,202,0.16)] px-4 py-2">Assigned</span>
-          <span className="rounded-full bg-[rgba(184,219,233,0.28)] px-4 py-2">Resolved</span>
-          <span className="rounded-full bg-[rgba(50,92,151,0.14)] px-4 py-2">Escalated</span>
+        <div className="mt-10 grid w-full max-w-[320px] grid-cols-2 gap-3 text-xs text-[var(--text-secondary)]">
+          {statusOrder.map((status) => (
+            <span
+              key={status}
+              className="flex min-h-[42px] items-center justify-center rounded-2xl px-3 py-2 text-center text-[13px] font-medium leading-5"
+              style={{
+                backgroundColor: `${segmentColors[status]}20`,
+                color: segmentColors[status],
+                outline: filters.complaintStatus === status ? `1px solid ${segmentColors[status]}` : 'none',
+              }}
+            >
+              {status} ({complaintStatusCounts[status]})
+            </span>
+          ))}
         </div>
       </div>
 
       <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-6 py-6 shadow-sm">
         <div className="mb-7 flex items-center justify-between text-sm">
-          <span className="font-semibold text-[var(--text-primary)]">Last Changes</span>
-          <span className="text-[var(--text-secondary)]">Past 6 months</span>
+          <span className="font-semibold text-[var(--text-primary)]">Status Coverage</span>
+          <span className="text-[var(--text-secondary)]">{filteredCount} of {totalCount} visible</span>
         </div>
-        <svg viewBox="0 0 430 220" className="h-[205px] w-full">
-          {[0, 1, 2, 3, 4].map((line) => (
-            <line
-              key={line}
-              x1="26"
-              y1={34 + line * 34}
-              x2="392"
-              y2={34 + line * 34}
-              stroke="rgba(148,163,184,0.22)"
-              strokeDasharray="5 5"
-            />
-          ))}
-          {[0, 1, 2, 3, 4, 5].map((line) => (
-            <line
-              key={`v-${line}`}
-              x1={48 + line * 56}
-              y1="30"
-              x2={48 + line * 56}
-              y2="176"
-              stroke="rgba(148,163,184,0.14)"
-            />
-          ))}
-          <polyline
-            fill="none"
-            stroke="rgb(var(--color-primary))"
-            strokeWidth="3"
-            points="48,144 104,138 160,137 216,123 272,122 328,114"
-          />
-          <polyline
-            fill="none"
-            stroke="rgb(var(--color-accent))"
-            strokeWidth="3"
-            points="48,156 104,151 160,145 216,141 272,140 328,138"
-          />
-          {[['48', '144'], ['104', '138'], ['160', '137'], ['216', '123'], ['272', '122'], ['328', '114']].map(([x, y]) => (
-            <circle key={`${x}-${y}`} cx={x} cy={y} r="4" fill="rgb(var(--color-primary))" />
-          ))}
-          {[['48', '156'], ['104', '151'], ['160', '145'], ['216', '141'], ['272', '140'], ['328', '138']].map(([x, y]) => (
-            <circle key={`a-${x}-${y}`} cx={x} cy={y} r="4" fill="rgb(var(--color-accent))" />
-          ))}
-        </svg>
+        <div className="space-y-4">
+          {statusOrder.map((status) => {
+            const count = complaintStatusCounts[status]
+            const width = totalCount === 0 ? 0 : (count / totalCount) * 100
+            const isActive = filters.complaintStatus === status
+            return (
+              <div key={status}>
+                <div className="mb-2 flex items-center justify-between gap-4 text-sm">
+                  <span className="font-medium text-[var(--text-primary)]">{status}</span>
+                  <span className="text-[var(--text-secondary)]">{count}</span>
+                </div>
+                <div className="h-3 rounded-full bg-[var(--border-color)]/60">
+                  <div
+                    className="h-3 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${width}%`,
+                      backgroundColor: segmentColors[status],
+                      boxShadow: isActive ? `0 0 0 2px ${segmentColors[status]}33` : 'none',
+                      opacity: filters.complaintStatus === 'All' || isActive ? 1 : 0.55,
+                    }}
+                  />
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </div>
     </div>
   )

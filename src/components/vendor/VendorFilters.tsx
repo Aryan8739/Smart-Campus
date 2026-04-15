@@ -63,9 +63,9 @@ function VendorFilters({
         className={fieldClassName}
       >
         <option value="All">All Campuses</option>
-        <option value="Main Campus">Main Campus</option>
-        <option value="North Campus">North Campus</option>
-        <option value="Research Park">Research Park</option>
+        <option value="Department">Department</option>
+        <option value="Faculty House">Faculty House</option>
+        <option value="Hostel">Hostel</option>
       </select>
     </div>
   )
