@@ -92,31 +92,33 @@ function DashboardLayout() {
 
       {/* Main Content */}
       <div className={`flex-1 ${isSidebarOpen ? 'ml-[300px]' : 'ml-0'}`}>
-        {/* Top Navbar */}
-        <header className="sticky top-0 z-30 border-b border-[var(--border-color)] bg-[var(--card-bg)]">
-          <div className="flex items-center justify-between px-6 py-4">
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] p-2 text-[var(--text-primary)] hover:bg-[var(--border-color)]"
-            >
-              {isSidebarOpen ? '←' : '→'}
-            </button>
-
-            <div className="flex items-center gap-4">
+        <div className="mx-auto w-full max-w-7xl">
+          {/* Top Navbar */}
+          <header className="sticky top-0 z-30 border-b border-[var(--border-color)] bg-[var(--card-bg)]">
+            <div className="flex items-center justify-between px-6 py-4">
               <button
-                onClick={toggleTheme}
-                className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-2 text-sm font-medium text-[var(--text-primary)]"
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] p-2 text-[var(--text-primary)] hover:bg-[var(--border-color)]"
               >
-                {isDark ? '☀️ Light' : '🌙 Dark'}
+                {isSidebarOpen ? '←' : '→'}
               </button>
-            </div>
-          </div>
-        </header>
 
-        {/* Page Content */}
-        <main className="p-6">
-          <Outlet />
-        </main>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={toggleTheme}
+                  className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-2 text-sm font-medium text-[var(--text-primary)]"
+                >
+                  {isDark ? '☀️ Light' : '🌙 Dark'}
+                </button>
+              </div>
+            </div>
+          </header>
+
+          {/* Page Content */}
+          <main className="p-6">
+            <Outlet />
+          </main>
+        </div>
       </div>
     </div>
   )

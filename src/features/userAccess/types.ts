@@ -158,6 +158,8 @@ export interface SecurityPolicy {
 export interface ComplaintRecord {
   id: string
   title: string
+  description?: string
+  issueArea?: string
   campus: CampusCode
   department: string
   status: ComplaintLifecycleStatus
@@ -228,7 +230,9 @@ export interface AdminModuleContextValue {
   filters: FilterState
   setFilters: Dispatch<SetStateAction<FilterState>>
   users: ManagedUser[]
+  setUsers: Dispatch<SetStateAction<ManagedUser[]>>
   complaints: ComplaintRecord[]
+  setComplaints: Dispatch<SetStateAction<ComplaintRecord[]>>
   complaintsInScope: ComplaintRecord[]
   vendors: VendorRecord[]
   technicians: TechnicianRecord[]
@@ -239,6 +243,7 @@ export interface AdminModuleContextValue {
   reports: ReportRecord[]
   notifications: NotificationRecord[]
   automation: AutomationSettings
+  setAutomation: Dispatch<SetStateAction<AutomationSettings>>
   complaintStatusCounts: ComplaintStatusCounts
   kpis: {
     totalUsers: number

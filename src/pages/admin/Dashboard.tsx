@@ -10,10 +10,10 @@ function Dashboard() {
   const { kpis, vendors, technicians } = useAdminModule()
 
   return (
-    <>
+    <div className="space-y-6">
       <ComplaintStatusOverview />
 
-      <section className="grid gap-6 xl:grid-cols-5">
+      <section className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
         <KpiCard title="Total Users" value={kpis.totalUsers} subtitle="Across all filtered campuses" />
         <KpiCard title="Active Users" value={kpis.activeUsers} subtitle="Session-enabled accounts" />
         <KpiCard title="Suspended Users" value={kpis.suspendedUsers} subtitle="Policy or admin suspension" />
@@ -21,7 +21,7 @@ function Dashboard() {
         <KpiCard title="Failed Login Attempts (Today)" value={kpis.failedLoginsToday} subtitle="Risk-sensitive access attempts" />
       </section>
 
-      <section className="grid gap-7 xl:grid-cols-[1.06fr_1fr]">
+      <section className="grid gap-5 xl:grid-cols-2">
         <DataPanel title="Campus Complaint Monitoring">
           <ComplaintStatusChart />
         </DataPanel>
@@ -30,16 +30,16 @@ function Dashboard() {
         </DataPanel>
       </section>
 
-      <section className="grid gap-7 xl:grid-cols-[1fr_1fr]">
+      <section className="grid gap-5 xl:grid-cols-2">
         <DataPanel title="Vendor Summary">
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {vendors.map((vendor) => (
-              <div key={vendor.id} className="flex items-center justify-between rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-4 shadow-sm">
+              <div key={vendor.id} className="flex flex-col items-start justify-between gap-3 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-4 shadow-sm sm:flex-row sm:items-center">
                 <div>
                   <p className="font-semibold text-[var(--text-primary)]">{vendor.name}</p>
                   <p className="text-sm text-[var(--text-secondary)]">{vendor.category}</p>
                 </div>
-                <div className="text-right">
+                <div className="text-left sm:text-right">
                   <p className="font-semibold text-[var(--text-primary)]">{vendor.activeTickets} tickets</p>
                   <Badge label={`${vendor.slaScore}% SLA`} tone={vendor.slaScore > 90 ? 'success' : 'warning'} />
                 </div>
@@ -48,10 +48,10 @@ function Dashboard() {
           </div>
         </DataPanel>
         <DataPanel title="Technician Summary">
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {technicians.map((technician) => (
               <div key={technician.id} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-4 shadow-sm">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
                   <div>
                     <p className="font-semibold text-[var(--text-primary)]">{technician.name}</p>
                     <p className="text-sm text-[var(--text-secondary)]">{technician.department}</p>
@@ -66,7 +66,7 @@ function Dashboard() {
           </div>
         </DataPanel>
       </section>
-    </>
+    </div>
   )
 }
 

@@ -13,17 +13,17 @@ function GlobalFiltersBar({
   }
 
   return (
-    <div className="grid gap-2.5 rounded-2xl border border-[var(--border-color)] bg-[var(--card-bg)] p-3.5 shadow-[0_18px_38px_-28px_rgba(15,23,42,0.2)] md:grid-cols-5 xl:grid-cols-6">
+    <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-3 rounded-2xl border border-[var(--border-color)] bg-[var(--card-bg)] p-4 shadow-[0_18px_38px_-28px_rgba(15,23,42,0.2)]">
       <input
         value={filters.search}
         onChange={(event) => updateFilter('search', event.target.value)}
         placeholder="Search users, email, phone"
-        className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3.5 py-2.5 text-[13px] text-[var(--text-primary)] outline-none focus:border-[rgb(var(--color-primary))]"
+        className="min-w-0 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3.5 py-2.5 text-[13px] text-[var(--text-primary)] outline-none focus:border-[rgb(var(--color-primary))] xl:col-span-2"
       />
       <select
         value={filters.dateRange}
         onChange={(event) => updateFilter('dateRange', event.target.value)}
-        className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3.5 py-2.5 text-[13px] text-[var(--text-primary)] outline-none"
+        className="min-w-0 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3.5 py-2.5 text-[13px] text-[var(--text-primary)] outline-none"
       >
         <option value="7d">Last 7 days</option>
         <option value="30d">Last 30 days</option>
@@ -32,7 +32,7 @@ function GlobalFiltersBar({
       <select
         value={filters.campus}
         onChange={(event) => updateFilter('campus', event.target.value)}
-        className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3.5 py-2.5 text-[13px] text-[var(--text-primary)] outline-none"
+        className="min-w-0 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3.5 py-2.5 text-[13px] text-[var(--text-primary)] outline-none"
       >
         <option value="All">All Campuses</option>
         <option value="Hostel">Hostel</option>
@@ -43,7 +43,7 @@ function GlobalFiltersBar({
       <select
         value={filters.department}
         onChange={(event) => updateFilter('department', event.target.value)}
-        className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3.5 py-2.5 text-[13px] text-[var(--text-primary)] outline-none"
+        className="min-w-0 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3.5 py-2.5 text-[13px] text-[var(--text-primary)] outline-none"
       >
         <option value="All">All Departments</option>
         {departments.map((department) => (
@@ -55,7 +55,7 @@ function GlobalFiltersBar({
       <select
         value={filters.role}
         onChange={(event) => updateFilter('role', event.target.value)}
-        className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3.5 py-2.5 text-[13px] text-[var(--text-primary)] outline-none"
+        className="min-w-0 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3.5 py-2.5 text-[13px] text-[var(--text-primary)] outline-none"
       >
         <option value="All">All Roles</option>
         {roles.map((role) => (
@@ -67,7 +67,7 @@ function GlobalFiltersBar({
       <select
         value={filters.status}
         onChange={(event) => updateFilter('status', event.target.value)}
-        className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3.5 py-2.5 text-[13px] text-[var(--text-primary)] outline-none"
+        className="min-w-0 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3.5 py-2.5 text-[13px] text-[var(--text-primary)] outline-none"
       >
         <option value="All">All Status</option>
         <option value="Active">Active</option>

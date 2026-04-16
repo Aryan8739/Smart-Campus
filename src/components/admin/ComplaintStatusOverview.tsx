@@ -40,7 +40,7 @@ function ComplaintStatusOverview() {
   const { filters, setFilters, complaintStatusCounts, complaintsInScope } = useAdminModule()
 
   return (
-    <section className="rounded-[1.5rem] border border-[var(--border-color)] bg-[var(--card-bg)] px-4 py-4 shadow-[0_18px_38px_-28px_rgba(15,23,42,0.24)]">
+    <section className="rounded-[1.5rem] border border-[var(--border-color)] bg-[var(--card-bg)] p-5 shadow-[0_18px_38px_-28px_rgba(15,23,42,0.24)]">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--text-secondary)]">Complaint Status Overview</p>
@@ -48,7 +48,7 @@ function ComplaintStatusOverview() {
             Quick lifecycle filter for complaint monitoring across the admin dashboard.
           </p>
         </div>
-        <div className="flex items-center gap-3 text-sm">
+        <div className="flex flex-wrap items-center gap-3 text-sm">
           <span className="rounded-full border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-1.5 text-[var(--text-secondary)]">
             {complaintsInScope.length} complaints in scope
           </span>
@@ -64,7 +64,7 @@ function ComplaintStatusOverview() {
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-3">
+      <div className="mt-4 grid gap-2.5 [grid-template-columns:repeat(auto-fit,minmax(170px,1fr))]">
         {statusOrder.map((status) => {
           const isActive = filters.complaintStatus === status
           const count = complaintStatusCounts[status]
@@ -78,7 +78,7 @@ function ComplaintStatusOverview() {
                 complaintStatus: previous.complaintStatus === status ? 'All' : status,
               }))}
               className={[
-                'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition duration-150 hover:-translate-y-0.5',
+                'inline-flex min-w-0 items-center justify-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition duration-150 hover:-translate-y-0.5',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary))] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--card-bg)]',
                 isActive ? 'scale-[1.01] shadow-[0_12px_24px_-18px_rgba(15,23,42,0.65)]' : '',
               ].join(' ')}

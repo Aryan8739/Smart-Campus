@@ -9,8 +9,8 @@ function AuditLogTable({ activity = false }: { activity?: boolean }) {
 
   return (
     <DataPanel title={activity ? 'Activity Logs' : 'Audit Logs'}>
-      <div className="overflow-x-auto">
-        <table className="min-w-full border-separate border-spacing-y-3">
+      <div className="w-full overflow-x-auto pb-2">
+        <table className="min-w-[900px] border-separate border-spacing-y-3">
           <thead>
             <tr className="text-left text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">
               <th className="px-4">Actor</th>
