@@ -18,7 +18,7 @@ function VendorTable({
   onDelete: (vendor: VendorManagementRecord) => void
 }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="w-full overflow-x-auto pb-2">
       <table className="min-w-[980px] border-separate border-spacing-y-3">
         <thead>
           <tr className="text-left text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">

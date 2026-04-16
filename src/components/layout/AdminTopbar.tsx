@@ -99,22 +99,22 @@ function AdminTopbar({
   }, [isAdminMenuOpen, isNotificationOpen])
 
   return (
-    <div className="relative flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between overflow-visible">
+    <div className="relative flex flex-col gap-5 overflow-visible xl:flex-row xl:items-start xl:justify-between">
       <div className="min-w-0 flex-1">
         <p className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--text-secondary)]">
           UCC Group 1 • Central Admin Dashboard
         </p>
-        <h1 className="text-[1.95rem] font-semibold tracking-[-0.04em] text-[var(--text-primary)] md:text-[2.65rem]">
+        <h1 className="break-words text-[1.78rem] font-semibold tracking-[-0.04em] text-[var(--text-primary)] md:text-[2.25rem]">
           {title}
         </h1>
-        <p className="mt-2 max-w-3xl text-[0.94rem] leading-7 text-[var(--text-secondary)]">
+        <p className="mt-1.5 text-[0.92rem] leading-6 text-[var(--text-secondary)]">
           Campus-wide governance control center for access, operations monitoring,
           audit review, and enterprise administration.
         </p>
       </div>
 
       <div
-        className="relative z-50 grid w-full grid-cols-2 gap-2.5 overflow-visible rounded-[1.4rem] border border-[rgba(148,163,184,0.28)] bg-[rgba(255,255,255,0.72)] px-3 py-3 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.18)] backdrop-blur-md sm:grid-cols-[repeat(2,minmax(0,1fr))_auto_auto] sm:items-center xl:ml-6 xl:w-auto xl:flex-none xl:grid-cols-[auto_auto_auto_auto] dark:border-[var(--border-color)] dark:bg-[rgba(15,23,42,0.55)]"
+        className="relative z-20 flex w-full flex-wrap items-center gap-2 overflow-visible rounded-[1.4rem] border border-[rgba(148,163,184,0.28)] bg-[rgba(255,255,255,0.72)] p-2 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.18)] backdrop-blur-md xl:ml-6 xl:w-auto xl:max-w-full xl:flex-none xl:justify-end dark:border-[var(--border-color)] dark:bg-[rgba(15,23,42,0.55)]"
       >
         <div
           aria-hidden="true"
@@ -130,7 +130,7 @@ function AdminTopbar({
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
-          className="relative min-w-0 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3.5 py-2.5 text-sm text-[var(--text-secondary)] shadow-sm transition hover:-translate-y-0.5"
+          className="relative min-h-[40px] min-w-[88px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-2 text-sm text-[var(--text-secondary)] shadow-sm transition hover:-translate-y-0.5"
         >
           {isDark ? 'Light' : 'Dark'}
         </button>
@@ -144,7 +144,7 @@ function AdminTopbar({
               setIsNotificationOpen((prev) => !prev)
               setIsAdminMenuOpen(false)
             }}
-            className="relative flex h-full min-h-[44px] w-full items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3.5 py-2.5 text-sm text-[var(--text-secondary)] shadow-sm transition hover:-translate-y-0.5 sm:w-auto"
+            className="relative flex min-h-[40px] w-[40px] items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] text-sm text-[var(--text-secondary)] shadow-sm transition hover:-translate-y-0.5"
           >
             🔔
           </button>
@@ -203,7 +203,7 @@ function AdminTopbar({
         </div>
 
         {/* Session */}
-        <div className="relative col-span-2 rounded-xl bg-emerald-100 px-4 py-2.5 text-center text-xs font-semibold text-emerald-700 shadow-sm sm:col-span-1 dark:bg-emerald-500/15 dark:text-emerald-300">
+        <div className="relative min-h-[40px] rounded-xl bg-emerald-100 px-3.5 py-2 text-center text-xs font-semibold text-emerald-700 shadow-sm dark:bg-emerald-500/15 dark:text-emerald-300">
           Session: Active
         </div>
 
@@ -216,7 +216,7 @@ function AdminTopbar({
               setIsAdminMenuOpen((prev) => !prev)
               setIsNotificationOpen(false)
             }}
-            className="relative w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-5 py-2.5 text-sm font-semibold text-[var(--text-primary)] shadow-sm transition hover:-translate-y-0.5 sm:w-auto"
+            className="relative min-h-[40px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)] shadow-sm transition hover:-translate-y-0.5"
           >
             Admin
           </button>

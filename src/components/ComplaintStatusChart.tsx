@@ -31,10 +31,10 @@ function ComplaintStatusChart() {
   const circumference = 2 * Math.PI * radius
 
   return (
-    <div className="grid items-center gap-8 lg:grid-cols-[0.95fr_1.05fr]">
+    <div className="grid items-start gap-6 2xl:grid-cols-[0.95fr_1.05fr]">
       <div className="flex flex-col items-center justify-center pt-2">
-        <div className="relative flex h-[270px] w-[270px] items-center justify-center">
-          <svg width="270" height="270" viewBox="0 0 270 270" className="-rotate-90">
+        <div className="relative flex h-[220px] w-[220px] items-center justify-center sm:h-[250px] sm:w-[250px] xl:h-[270px] xl:w-[270px]">
+          <svg viewBox="0 0 270 270" className="h-full w-full -rotate-90">
             <circle cx="135" cy="135" r={radius} fill="transparent" stroke="rgba(148,163,184,0.18)" strokeWidth="40" />
             {segments.map((segment, index) => {
               const dash = (segment.value / 100) * circumference
@@ -87,7 +87,7 @@ function ComplaintStatusChart() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-6 py-6 shadow-sm">
+      <div className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-6 py-6 shadow-sm">
         <div className="mb-7 flex items-center justify-between text-sm">
           <span className="font-semibold text-[var(--text-primary)]">Status Coverage</span>
           <span className="text-[var(--text-secondary)]">{filteredCount} of {totalCount} visible</span>

@@ -6,6 +6,7 @@ import EmptyState from '../common/EmptyState'
 import { useAdminModule } from '../../features/userAccess/hooks/useAdminModule'
 import { usePermissions } from '../../features/userAccess/hooks/usePermissions'
 import type { ManagedUser, SessionStatus, UserStatus } from '../../features/userAccess/types'
+import { fetchUserAuditLogs, impersonateUser, type UserAuditEntry } from '../../features/userAccess/services/userActionService'
 
 type BulkAction = 'suspend' | 'delete'
 type RowAction = 'activate' | 'suspend' | 'reset-password' | 'force-logout'
@@ -30,31 +31,46 @@ const rowActionContent: Record<RowAction, { title: string; description: (user: M
 }
 
 function UserTable() {
-  const { users } = useAdminModule()
+  const { users, setUsers } = useAdminModule()
   const { can, isSuperAdmin } = usePermissions()
   const [isLoading] = useState(false)
-  const [tableUsers, setTableUsers] = useState(users)
+  const [isAuditLoading, setIsAuditLoading] = useState(false)
+  const [auditLogs, setAuditLogs] = useState<UserAuditEntry[]>([])
+  const [auditUser, setAuditUser] = useState<ManagedUser | null>(null)
+  const [impersonatingUserId, setImpersonatingUserId] = useState<string | null>(null)
   const [selected, setSelected] = useState<string[]>([])
   const [page, setPage] = useState(1)
   const [showModal, setShowModal] = useState<BulkAction | null>(null)
   const [activityUserId, setActivityUserId] = useState<string | null>(null)
   const [pendingAction, setPendingAction] = useState<{ type: RowAction; userId: string } | null>(null)
   const [feedback, setFeedback] = useState<string | null>(null)
+  const [feedbackTone, setFeedbackTone] = useState<'success' | 'error'>('success')
   const pageSize = 4
+  const tableUsers = users
   const pagedUsers = tableUsers.slice((page - 1) * pageSize, page * pageSize)
   const totalPages = Math.max(1, Math.ceil(tableUsers.length / pageSize))
   const activityUser = tableUsers.find((user) => user.id === activityUserId) ?? null
   const actionUser = tableUsers.find((user) => user.id === pendingAction?.userId) ?? null
 
   useEffect(() => {
-    setTableUsers(users)
-  }, [users])
+    setPage((current) => Math.min(current, totalPages))
+  }, [totalPages])
 
   useEffect(() => {
     if (!feedback) return undefined
     const timer = window.setTimeout(() => setFeedback(null), 3200)
     return () => window.clearTimeout(timer)
   }, [feedback])
+
+  const showSuccess = (message: string) => {
+    setFeedbackTone('success')
+    setFeedback(message)
+  }
+
+  const showError = (message: string) => {
+    setFeedbackTone('error')
+    setFeedback(message)
+  }
 
   const toggleUser = (id: string) => {
     setSelected((previous) =>
@@ -75,33 +91,33 @@ function UserTable() {
     changes: Partial<ManagedUser>,
     message: string
   ) => {
-    setTableUsers((previous) =>
+    setUsers((previous) =>
       previous.map((user) => (user.id === userId ? { ...user, ...changes } : user))
     )
-    setFeedback(message)
+    showSuccess(message)
   }
 
   const handleBulkConfirm = () => {
     if (!selected.length) {
-      setFeedback(`Select at least one user before ${showModal}.`)
+      showError(`Select at least one user before ${showModal}.`)
       setShowModal(null)
       return
     }
 
     if (showModal === 'suspend') {
-      setTableUsers((previous) =>
+      setUsers((previous) =>
         previous.map((user) =>
           selected.includes(user.id)
             ? { ...user, status: 'Suspended' as UserStatus, sessionStatus: 'Offline' as SessionStatus }
             : user
         )
       )
-      setFeedback(`${selected.length} user account(s) suspended.`)
+      showSuccess(`${selected.length} user account(s) suspended.`)
     }
 
     if (showModal === 'delete') {
-      setTableUsers((previous) => previous.filter((user) => !selected.includes(user.id)))
-      setFeedback(`${selected.length} user account(s) removed from the directory.`)
+      setUsers((previous) => previous.filter((user) => !selected.includes(user.id)))
+      showSuccess(`${selected.length} user account(s) removed from the directory.`)
       setPage(1)
     }
 
@@ -150,6 +166,39 @@ function UserTable() {
     setPendingAction(null)
   }
 
+  const handleViewAuditLogs = async (user: ManagedUser) => {
+    setAuditUser(user)
+    setAuditLogs([])
+    setIsAuditLoading(true)
+
+    try {
+      const entries = await fetchUserAuditLogs(user)
+      setAuditLogs(entries)
+    } catch {
+      setAuditUser(null)
+      showError(`Could not load audit logs for ${user.name}.`)
+    } finally {
+      setIsAuditLoading(false)
+    }
+  }
+
+  const handleImpersonate = async (user: ManagedUser) => {
+    if (impersonatingUserId) {
+      return
+    }
+
+    setImpersonatingUserId(user.id)
+    try {
+      const message = await impersonateUser(user)
+      showSuccess(message)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Impersonation failed.'
+      showError(message)
+    } finally {
+      setImpersonatingUserId(null)
+    }
+  }
+
   return (
     <DataPanel
       title="User Directory"
@@ -173,7 +222,11 @@ function UserTable() {
       }
     >
       {feedback ? (
-        <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
+        <div className={`mb-4 rounded-2xl px-4 py-3 text-sm font-medium ${
+          feedbackTone === 'success'
+            ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
+            : 'border border-rose-200 bg-rose-50 text-rose-700'
+        }`}>
           {feedback}
         </div>
       ) : null}
@@ -187,7 +240,7 @@ function UserTable() {
       ) : !tableUsers.length ? (
         <EmptyState title="No users found" description="Adjust filters or create a new user to populate the directory." />
       ) : (
-        <div className="overflow-x-auto pb-2">
+        <div className="w-full overflow-x-auto pb-2">
           <table className="min-w-[1100px] border-separate border-spacing-y-3">
             <thead>
               <tr className="text-left text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">
@@ -220,8 +273,26 @@ function UserTable() {
                       <button onClick={() => openActionModal('reset-password', user.id)} className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-1 text-xs font-semibold text-[var(--text-primary)]">Reset Password</button>
                       {can('FORCE_LOGOUT') ? <button onClick={() => openActionModal('force-logout', user.id)} className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-900 shadow-[0_1px_2px_rgba(244,63,94,0.08)] transition hover:bg-rose-100">Force Logout</button> : null}
                       <button onClick={() => setActivityUserId(user.id)} className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-1 text-xs font-semibold text-[var(--text-primary)]">View Activity</button>
-                      {can('VIEW_AUDIT') ? <button className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-1 text-xs font-semibold text-[var(--text-primary)]">View Audit Logs</button> : null}
-                      {isSuperAdmin ? <button className="rounded-lg bg-[rgba(var(--color-primary),0.12)] px-3 py-1 text-xs font-semibold text-[rgb(var(--color-primary))]">Impersonate User</button> : null}
+                      {can('VIEW_AUDIT') ? (
+                        <button
+                          type="button"
+                          onClick={() => handleViewAuditLogs(user)}
+                          disabled={isAuditLoading && auditUser?.id === user.id}
+                          className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-1 text-xs font-semibold text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                          {isAuditLoading && auditUser?.id === user.id ? 'Loading...' : 'View Audit Logs'}
+                        </button>
+                      ) : null}
+                      {isSuperAdmin ? (
+                        <button
+                          type="button"
+                          onClick={() => handleImpersonate(user)}
+                          disabled={impersonatingUserId === user.id}
+                          className="rounded-lg bg-[rgba(var(--color-primary),0.12)] px-3 py-1 text-xs font-semibold text-[rgb(var(--color-primary))] disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                          {impersonatingUserId === user.id ? 'Starting...' : 'Impersonate User'}
+                        </button>
+                      ) : null}
                     </div>
                   </td>
                 </tr>
@@ -273,6 +344,52 @@ function UserTable() {
               <button onClick={closeActionModal} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)]">Cancel</button>
               <button onClick={handleRowActionConfirm} className="rounded-xl bg-[rgb(var(--color-primary))] px-4 py-2 text-sm font-semibold text-white">Continue</button>
             </div>
+          </div>
+        </div>,
+        document.body
+      ) : null}
+
+      {auditUser ? createPortal(
+        <div className="fixed inset-0 z-30 flex items-center justify-center overflow-y-auto bg-slate-900/35 px-4 py-8">
+          <div className="w-full max-w-2xl rounded-2xl border border-[var(--border-color)] bg-[var(--card-bg)] p-6 shadow-xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-xl font-semibold text-[var(--text-primary)]">{auditUser.name} Audit Logs</h3>
+                <p className="mt-1 text-sm text-[var(--text-secondary)]">Recent access and policy events tied to this account.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAuditUser(null)}
+                className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)]"
+              >
+                Close
+              </button>
+            </div>
+
+            {isAuditLoading ? (
+              <div className="mt-5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-3 text-sm text-[var(--text-secondary)]">
+                Loading audit events...
+              </div>
+            ) : auditLogs.length ? (
+              <div className="mt-5 space-y-3">
+                {auditLogs.map((entry) => (
+                  <div key={entry.id} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="font-semibold text-[var(--text-primary)]">{entry.action}</p>
+                      <Badge
+                        label={entry.outcome}
+                        tone={entry.outcome === 'Success' ? 'success' : entry.outcome === 'Blocked' ? 'danger' : 'warning'}
+                      />
+                    </div>
+                    <p className="mt-2 text-sm text-[var(--text-secondary)]">{entry.timestamp}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-3 text-sm text-[var(--text-secondary)]">
+                No audit events available for this user.
+              </div>
+            )}
           </div>
         </div>,
         document.body

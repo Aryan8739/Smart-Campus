@@ -3,8 +3,9 @@ import { auditRecords, notificationRecords, reportRecords } from '../services/au
 import { sessionRecords, automationSettings } from '../services/authService'
 import { complaintRecords, technicianRecords, vendorRecords } from '../services/operationsService'
 import { roleRecords } from '../services/roleService'
+import { loadAutomationSettings } from '../services/settingsService'
 import { filterUsers, userRecords } from '../services/userService'
-import type { AdminModuleContextValue, ComplaintStatusCounts, FilterState } from '../types'
+import type { AdminModuleContextValue, ComplaintRecord, ComplaintStatusCounts, FilterState, ManagedUser } from '../types'
 
 const defaultFilters: FilterState = {
   search: '',
@@ -19,10 +20,13 @@ const defaultFilters: FilterState = {
 
 export function useAdminFilters(): AdminModuleContextValue {
   const [filters, setFilters] = useState<FilterState>(defaultFilters)
+  const [allUsers, setUsers] = useState<ManagedUser[]>(() => [...userRecords])
+  const [allComplaints, setComplaints] = useState<ComplaintRecord[]>(() => [...complaintRecords])
+  const [automation, setAutomation] = useState(() => loadAutomationSettings(automationSettings))
 
   return useMemo(() => {
-    const users = filterUsers(userRecords, filters)
-    const complaintsInScope = complaintRecords.filter((record) => {
+    const users = filterUsers(allUsers, filters)
+    const complaintsInScope = allComplaints.filter((record) => {
       const campusMatch = filters.campus === 'All' || record.campus === filters.campus
       const deptMatch = filters.department === 'All' || record.department === filters.department
       return campusMatch && deptMatch
@@ -61,7 +65,9 @@ export function useAdminFilters(): AdminModuleContextValue {
       filters,
       setFilters,
       users,
+      setUsers,
       complaints,
+      setComplaints,
       complaintsInScope,
       vendors,
       technicians,
@@ -71,7 +77,8 @@ export function useAdminFilters(): AdminModuleContextValue {
       activityLogs,
       reports: reportRecords,
       notifications: notificationRecords,
-      automation: automationSettings,
+      automation,
+      setAutomation,
       complaintStatusCounts,
       kpis: {
         totalUsers: users.length,
@@ -81,5 +88,5 @@ export function useAdminFilters(): AdminModuleContextValue {
         failedLoginsToday: users.reduce((sum, user) => sum + user.failedLoginsToday, 0),
       },
     }
-  }, [filters])
+  }, [allComplaints, allUsers, automation, filters])
 }
