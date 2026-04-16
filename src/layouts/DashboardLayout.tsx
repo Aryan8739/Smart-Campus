@@ -40,7 +40,7 @@ function DashboardLayout() {
       <aside
         className={`fixed left-0 top-0 z-40 h-screen border-r border-[var(--border-color)] bg-[var(--card-bg)] transition-transform ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } w-64`}
+        } w-[300px]`}
       >
         <div className="flex h-full flex-col">
           {/* Logo */}
@@ -91,7 +91,7 @@ function DashboardLayout() {
       </aside>
 
       {/* Main Content */}
-      <div className={`flex-1 ${isSidebarOpen ? 'ml-64' : 'ml-0'}`}>
+      <div className={`flex-1 ${isSidebarOpen ? 'ml-[300px]' : 'ml-0'}`}>
         {/* Top Navbar */}
         <header className="sticky top-0 z-30 border-b border-[var(--border-color)] bg-[var(--card-bg)]">
           <div className="flex items-center justify-between px-6 py-4">

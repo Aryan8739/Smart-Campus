@@ -111,7 +111,7 @@ function AdminShell() {
   const activeGroupTitle = resolveGroupTitle(location.pathname)
 
   return (
-    <main className="relative h-screen overflow-hidden bg-[var(--bg-primary)] px-2 py-3 md:px-4 md:py-5">
+    <main className="relative min-h-screen overflow-hidden bg-[var(--bg-primary)] px-4 py-7 md:px-8 lg:h-screen lg:px-12 lg:py-4">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 opacity-[0.07] dark:opacity-[0.04]"
@@ -122,9 +122,9 @@ function AdminShell() {
           backgroundSize: '520px',
         }}
       />
-      <div className="mx-auto flex h-full w-full max-w-[1800px]">
+      <div className="mx-auto flex h-full w-full max-w-7xl">
         <div className="flex h-full w-full overflow-hidden rounded-[1.9rem] bg-[var(--card-bg)] shadow-[0_34px_80px_-48px_rgba(37,60,109,0.22)] ring-1 ring-[var(--border-color)] dark:bg-slate-950/85 dark:shadow-[0_34px_80px_-48px_rgba(2,6,23,0.85)]">
-          <div className="grid h-full w-full lg:grid-cols-[248px_1fr]">
+          <div className="grid h-full w-full lg:grid-cols-[300px_1fr]">
             <AdminSidebar key={activeGroupTitle} activeGroupTitle={activeGroupTitle} />
 
             <div className="flex min-h-0 min-w-0 flex-col bg-[var(--bg-primary)]">
