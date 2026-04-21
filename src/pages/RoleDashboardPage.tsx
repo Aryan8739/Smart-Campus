@@ -29,6 +29,10 @@ function RoleDashboardPage() {
     return <Navigate to="/department-admin/dashboard" replace />
   }
 
+  if (user?.role === 'technician') {
+    return <Navigate to="/technician/dashboard" replace />
+  }
+
   return (
     <UnderDevelopment
       title={roleTitle}

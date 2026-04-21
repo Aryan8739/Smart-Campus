@@ -18,6 +18,7 @@ import FeedbackRatingPage from './pages/modules/FeedbackRatingPage'
 import InventoryPage from './pages/modules/InventoryPage'
 import NotificationEscalationPage from './pages/modules/NotificationEscalationPage'
 import ResourceAllocationBookingPage from './pages/modules/ResourceAllocationBookingPage'
+import TechnicianDashboardPage from './pages/modules/TechnicianDashboardPage'
 import TechnicianExecutionPage from './pages/modules/TechnicianExecutionPage'
 import UserAccessPage from './pages/modules/UserAccessPage'
 import VendorDashboardPage from './pages/modules/VendorDashboardPage'
@@ -125,6 +126,17 @@ function App() {
                   unauthorizedRedirectTo="/role-dashboard"
                 >
                   <VendorDashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="technician/dashboard"
+              element={
+                <ProtectedRoute
+                  allowedRoles={['technician']}
+                  unauthorizedRedirectTo="/role-dashboard"
+                >
+                  <TechnicianDashboardPage />
                 </ProtectedRoute>
               }
             />
