@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CustomerSidebar from '../../components/customerDashboard/CustomerSidebar'
 import BillingTab from '../../components/customerDashboard/tabs/BillingTab'
@@ -18,6 +19,7 @@ import {
   type SortOrder,
 } from '../../components/customerDashboard/types'
 import { useAuth } from '../../contexts/useAuth'
+import { customerDashboardService } from '../../services/customerDashboardService'
 
 const categoryOptions = ['Electrical', 'Plumbing', 'IT/Network', 'Civil', 'Housekeeping']
 
@@ -36,7 +38,7 @@ const initialComplaints: Complaint[] = [
     updatedAtIso: '2026-04-12T08:20:00+05:30',
     assignedTeam: 'Electrical Response Team',
     invoiceStatus: 'Pending',
-    evidence: ['lab-ac-panel.jpg'],
+    evidence: ['https://images.unsplash.com/photo-1558227691-41ea71d1f631?auto=format&fit=crop&q=80&w=300'],
     timeline: [
       { id: 't1', label: 'Complaint submitted', when: '09 Apr 2026, 10:10 AM' },
       { id: 't2', label: 'Assigned to Electrical Response Team', when: '09 Apr 2026, 11:00 AM' },
@@ -56,28 +58,12 @@ const initialComplaints: Complaint[] = [
     updatedAtIso: '2026-04-11T18:30:00+05:30',
     assignedTeam: 'Plumbing Duty Team',
     invoiceStatus: 'Partially Paid',
-    evidence: ['hostel-washroom-before.png', 'hostel-washroom-after.png'],
+    evidence: ['https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=300'],
     timeline: [
       { id: 't4', label: 'Complaint submitted', when: '03 Apr 2026, 4:05 PM' },
       { id: 't5', label: 'Assigned to Plumbing Duty Team', when: '03 Apr 2026, 5:10 PM' },
       { id: 't6', label: 'Issue resolved', when: '11 Apr 2026, 6:30 PM' },
     ],
-  },
-  {
-    id: 'CMP-2026-254',
-    title: 'WiFi dead zone in Central Library reading hall',
-    category: 'IT/Network',
-    location: 'Central Library - Reading Hall',
-    priority: 'Critical',
-    status: 'Open',
-    description: 'Frequent disconnections in the east wing during peak study hours.',
-    createdAt: '01 Apr 2026, 2:40 PM',
-    updatedAt: 'Today, 7:45 AM',
-    updatedAtIso: '2026-04-12T07:45:00+05:30',
-    assignedTeam: 'Pending Assignment',
-    invoiceStatus: 'Not Generated',
-    evidence: [],
-    timeline: [{ id: 't7', label: 'Complaint submitted', when: '01 Apr 2026, 2:40 PM' }],
   },
 ]
 
@@ -88,22 +74,6 @@ const initialNotifications: NotificationItem[] = [
     detail: 'CMP-2026-254 is nearing response SLA threshold.',
     at: 'Today, 8:00 AM',
     severity: 'warning',
-    isRead: false,
-  },
-  {
-    id: 'n2',
-    title: 'Work Update',
-    detail: 'Technician progress updated for CMP-2026-301.',
-    at: 'Yesterday, 7:15 PM',
-    severity: 'info',
-    isRead: true,
-  },
-  {
-    id: 'n3',
-    title: 'Feedback Reminder',
-    detail: 'Please rate your resolved complaint CMP-2026-287.',
-    at: 'Yesterday, 6:40 PM',
-    severity: 'success',
     isRead: false,
   },
 ]
@@ -117,15 +87,6 @@ const initialInvoices: InvoiceSummary[] = [
     status: 'Pending',
     dueInDays: 7,
     updatedAt: '11 Apr 2026, 6:00 PM',
-  },
-  {
-    id: 'INV-108',
-    complaintId: 'CMP-2026-287',
-    amount: 1200,
-    paidAmount: 600,
-    status: 'Partially Paid',
-    dueInDays: 3,
-    updatedAt: '11 Apr 2026, 6:45 PM',
   },
 ]
 
@@ -150,26 +111,34 @@ function CustomerDashboardAdvancedPage() {
 
   const [activeTab, setActiveTab] = useState<CustomerDashboardTab>('overview')
 
-  const [complaints, setComplaints] = useState<Complaint[]>(initialComplaints)
-  const [notifications, setNotifications] = useState<NotificationItem[]>(initialNotifications)
-  const [invoices, setInvoices] = useState<InvoiceSummary[]>(initialInvoices)
-  const [feedbackEntries, setFeedbackEntries] = useState<FeedbackItem[]>([
-    {
-      complaintId: 'CMP-2026-287',
-      rating: 4,
-      comment: 'Issue resolved and washroom condition is much better now.',
-      submittedAt: '11 Apr 2026, 8:15 PM',
-    },
-  ])
+  // Persistence
+  const [complaints, setComplaints] = useState<Complaint[]>(() => customerDashboardService.getComplaints(initialComplaints))
+  const [notifications, setNotifications] = useState<NotificationItem[]>(() => customerDashboardService.getNotifications(initialNotifications))
+  const [invoices, setInvoices] = useState<InvoiceSummary[]>(() => customerDashboardService.getInvoices(initialInvoices))
+  const [feedbackEntries, setFeedbackEntries] = useState<FeedbackItem[]>(() => customerDashboardService.getFeedback([]))
 
-  const [selectedComplaintId, setSelectedComplaintId] = useState<string>(initialComplaints[0]?.id ?? '')
+  useEffect(() => { customerDashboardService.saveComplaints(complaints) }, [complaints])
+  useEffect(() => { customerDashboardService.saveNotifications(notifications) }, [notifications])
+  useEffect(() => { customerDashboardService.saveInvoices(invoices) }, [invoices])
+  useEffect(() => { customerDashboardService.saveFeedback(feedbackEntries) }, [feedbackEntries])
 
-  const [searchInput, setSearchInput] = useState('')
-  const [appliedSearch, setAppliedSearch] = useState('')
-  const [categoryFilter, setCategoryFilter] = useState('All Categories')
-  const [statusFilter, setStatusFilter] = useState('All Status')
-  const [priorityFilter, setPriorityFilter] = useState('All Priorities')
-  const [sortOrder, setSortOrder] = useState<SortOrder>('Newest First')
+  const [selectedComplaintId, setSelectedComplaintId] = useState<string>(complaints[0]?.id ?? '')
+
+  // Filter persistence
+  const savedFilters = useMemo(() => customerDashboardService.getFilters() || {}, [])
+  const [searchInput, setSearchInput] = useState(savedFilters.searchInput || '')
+  const [appliedSearch, setAppliedSearch] = useState(savedFilters.appliedSearch || '')
+  const [categoryFilter, setCategoryFilter] = useState(savedFilters.categoryFilter || 'All Categories')
+  const [statusFilter, setStatusFilter] = useState(savedFilters.statusFilter || 'All Status')
+  const [priorityFilter, setPriorityFilter] = useState(savedFilters.priorityFilter || 'All Priorities')
+  const [timeFilter, setTimeFilter] = useState(savedFilters.timeFilter || 'All Time')
+  const [sortOrder, setSortOrder] = useState<SortOrder>(savedFilters.sortOrder || 'Newest First')
+
+  useEffect(() => {
+    customerDashboardService.saveFilters({
+      searchInput, appliedSearch, categoryFilter, statusFilter, priorityFilter, timeFilter, sortOrder
+    })
+  }, [searchInput, appliedSearch, categoryFilter, statusFilter, priorityFilter, timeFilter, sortOrder])
 
   const [newTitle, setNewTitle] = useState('')
   const [newCategory, setNewCategory] = useState(categoryOptions[0])
@@ -208,18 +177,29 @@ function CustomerDashboardAdvancedPage() {
     [complaints],
   )
 
+  const timeOptions = ['All Time', 'Last 7 Days', 'Last 30 Days']
+
   const filteredComplaints = useMemo(() => {
+    const now = new Date().getTime()
+    const msInDay = 24 * 60 * 60 * 1000
+
     const rows = complaints.filter((item) => {
       const categoryMatched = categoryFilter === 'All Categories' || item.category === categoryFilter
       const statusMatched = statusFilter === 'All Status' || item.status === statusFilter
       const priorityMatched = priorityFilter === 'All Priorities' || item.priority === priorityFilter
+      
+      const itemTime = new Date(item.updatedAtIso).getTime()
+      let timeMatched = true
+      if (timeFilter === 'Last 7 Days') timeMatched = (now - itemTime) <= (7 * msInDay)
+      if (timeFilter === 'Last 30 Days') timeMatched = (now - itemTime) <= (30 * msInDay)
+
       const searchMatched =
         appliedSearch.trim() === '' ||
         item.id.toLowerCase().includes(appliedSearch.toLowerCase()) ||
         item.title.toLowerCase().includes(appliedSearch.toLowerCase()) ||
         item.location.toLowerCase().includes(appliedSearch.toLowerCase())
 
-      return categoryMatched && statusMatched && priorityMatched && searchMatched
+      return categoryMatched && statusMatched && priorityMatched && timeMatched && searchMatched
     })
 
     return [...rows].sort((a, b) => {
@@ -227,7 +207,7 @@ function CustomerDashboardAdvancedPage() {
       const bTime = new Date(b.updatedAtIso).getTime()
       return sortOrder === 'Newest First' ? bTime - aTime : aTime - bTime
     })
-  }, [appliedSearch, categoryFilter, complaints, priorityFilter, sortOrder, statusFilter])
+  }, [appliedSearch, categoryFilter, complaints, priorityFilter, sortOrder, statusFilter, timeFilter])
 
   const selectedComplaint = useMemo(
     () => complaints.find((item) => item.id === selectedComplaintId) ?? null,
@@ -274,6 +254,7 @@ function CustomerDashboardAdvancedPage() {
     setCategoryFilter('All Categories')
     setStatusFilter('All Status')
     setPriorityFilter('All Priorities')
+    setTimeFilter('All Time')
     setSortOrder('Newest First')
   }
 
@@ -425,20 +406,21 @@ function CustomerDashboardAdvancedPage() {
     const maxSizeBytes = 10 * 1024 * 1024
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/mp4']
 
-    const acceptedNames: string[] = []
+    const acceptedUrls: string[] = []
     const rejectedNames: string[] = []
 
     Array.from(files).forEach((file) => {
       const validType = allowedMimeTypes.includes(file.type)
       const validSize = file.size <= maxSizeBytes
       if (validType && validSize) {
-        acceptedNames.push(file.name)
+        // Create Object URL for preview
+        acceptedUrls.push(URL.createObjectURL(file))
       } else {
         rejectedNames.push(file.name)
       }
     })
 
-    if (acceptedNames.length > 0) {
+    if (acceptedUrls.length > 0) {
       setComplaints((prev) =>
         prev.map((item) => {
           if (item.id !== selectedComplaint.id) {
@@ -447,14 +429,14 @@ function CustomerDashboardAdvancedPage() {
 
           return {
             ...item,
-            evidence: [...item.evidence, ...acceptedNames],
+            evidence: [...item.evidence, ...acceptedUrls],
             updatedAt: 'Just now',
             updatedAtIso: new Date().toISOString(),
             timeline: [
               ...item.timeline,
               {
                 id: crypto.randomUUID(),
-                label: `Evidence uploaded (${acceptedNames.length} file(s))`,
+                label: `Evidence uploaded (${acceptedUrls.length} file(s))`,
                 when: nowStamp(),
               },
             ],
@@ -462,14 +444,14 @@ function CustomerDashboardAdvancedPage() {
         }),
       )
 
-      setUploadMessage(`${acceptedNames.length} file(s) attached to ${selectedComplaint.id}.`)
+      setUploadMessage(`${acceptedUrls.length} file(s) attached with instant preview.`)
       setUploadError('')
       pushNotification('Evidence Added', `${selectedComplaint.id} updated with new attachments.`, 'info')
     }
 
     if (rejectedNames.length > 0) {
       setUploadError(
-        `These files were rejected: ${rejectedNames.join(', ')}. Allowed formats: JPG, PNG, MP4 (max 10MB).`,
+        `Rejected: ${rejectedNames.join(', ')}. Rules: JPG, PNG, MP4 (max 10MB).`,
       )
     }
   }
@@ -530,7 +512,7 @@ function CustomerDashboardAdvancedPage() {
     })
 
     setFeedbackError('')
-    setFeedbackMessage('Feedback submitted successfully. Thank you for helping us improve service quality.')
+    setFeedbackMessage('Feedback submitted successfully.')
     setFeedbackComment('')
 
     pushNotification('Feedback Recorded', `Quality feedback received for ${selectedComplaint.id}.`, 'success')
@@ -589,6 +571,10 @@ function CustomerDashboardAdvancedPage() {
             selectedComplaintId={selectedComplaintId}
             onSelectComplaint={setSelectedComplaintId}
             onOpenWorkspace={() => setActiveTab('workspace')}
+            // New time filter props
+            timeFilter={timeFilter}
+            timeOptions={timeOptions}
+            onTimeChange={setTimeFilter}
           />
         )
       case 'workspace':

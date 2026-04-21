@@ -178,6 +178,30 @@ function OverviewTab({ userName, metrics, onNavigate }: OverviewTabProps) {
           </div>
         </div>
       </article>
+
+      <div className="rounded-3xl border border-[rgb(var(--color-border))] bg-gradient-to-br from-[rgb(var(--color-primary))/0.05] to-transparent p-6 shadow-sm">
+        <h3 className="text-sm font-bold uppercase tracking-wider text-[rgb(var(--color-text-secondary))]">
+          Key Performance Indicators (Project KPIs)
+        </h3>
+        <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <p className="text-2xl font-bold text-[rgb(var(--color-primary))]">98.2%</p>
+            <p className="text-[10px] uppercase tracking-wide text-[rgb(var(--color-text-secondary))]">File Upload Success</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-[rgb(var(--color-accent))]">84%</p>
+            <p className="text-[10px] uppercase tracking-wide text-[rgb(var(--color-text-secondary))]">Filter Usage Rate</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-[rgb(var(--color-success))]">94%</p>
+            <p className="text-[10px] uppercase tracking-wide text-[rgb(var(--color-text-secondary))]">Resolution Completion</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-[rgb(var(--color-warning))]">95.4%</p>
+            <p className="text-[10px] uppercase tracking-wide text-[rgb(var(--color-text-secondary))]">Mobile Interaction</p>
+          </div>
+        </div>
+      </div>
     </section>
   )
 }

@@ -39,6 +39,7 @@ const dropdownNav: DropdownNavItem[] = [
     icon: Workflow,
     items: [
       { label: 'Complaint Intake', to: '/modules/complaint-intake' },
+      { label: 'Customer Dashboard Advanced', to: '/modules/customer-dashboard-advanced' },
       { label: 'Assignment', to: '/modules/assignment' },
       { label: 'Technician Execution', to: '/modules/technician-execution' },
       { label: 'Notification Escalation', to: '/modules/notification-escalation' },

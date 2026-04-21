@@ -8,14 +8,17 @@ type TrackerTabProps = {
   categoryFilter: string
   statusFilter: string
   priorityFilter: string
+  timeFilter: string
   sortOrder: SortOrder
   categories: string[]
   statuses: string[]
   priorities: string[]
+  timeOptions: string[]
   onSearchInputChange: (value: string) => void
   onCategoryChange: (value: string) => void
   onStatusChange: (value: string) => void
   onPriorityChange: (value: string) => void
+  onTimeChange: (value: string) => void
   onSortChange: (value: SortOrder) => void
   onApplySearch: () => void
   onResetFilters: () => void
@@ -31,14 +34,17 @@ function TrackerTab({
   categoryFilter,
   statusFilter,
   priorityFilter,
+  timeFilter,
   sortOrder,
   categories,
   statuses,
   priorities,
+  timeOptions,
   onSearchInputChange,
   onCategoryChange,
   onStatusChange,
   onPriorityChange,
+  onTimeChange,
   onSortChange,
   onApplySearch,
   onResetFilters,
@@ -64,6 +70,9 @@ function TrackerTab({
         </span>
         <span className="rounded-full border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-2.5 py-1 text-[rgb(var(--color-text-secondary))]">
           Sort: {sortOrder}
+        </span>
+        <span className="rounded-full border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-2.5 py-1 text-[rgb(var(--color-text-secondary))]">
+          Period: {timeFilter}
         </span>
       </div>
 
@@ -110,6 +119,15 @@ function TrackerTab({
           className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-2 text-xs"
         >
           {priorities.map((item) => (
+            <option key={item}>{item}</option>
+          ))}
+        </select>
+        <select
+          value={timeFilter}
+          onChange={(event) => onTimeChange(event.target.value)}
+          className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] px-3 py-2 text-xs"
+        >
+          {timeOptions.map((item) => (
             <option key={item}>{item}</option>
           ))}
         </select>

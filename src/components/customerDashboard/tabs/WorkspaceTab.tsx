@@ -123,11 +123,23 @@ function WorkspaceTab({
               />
 
               {complaint.evidence.length > 0 ? (
-                <ul className="mt-3 space-y-1 text-xs text-[rgb(var(--color-text-secondary))]">
-                  {complaint.evidence.map((entry) => (
-                    <li key={entry}>• {entry}</li>
-                  ))}
-                </ul>
+                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {complaint.evidence.map((url) => {
+                    const isVideo = url.toLowerCase().includes('.mp4') || url.startsWith('blob:') && url.includes('video');
+                    return (
+                      <div key={url} className="group relative aspect-square overflow-hidden rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] shadow-sm transition hover:scale-[1.02]">
+                        {isVideo ? (
+                          <video src={url} className="h-full w-full object-cover" />
+                        ) : (
+                          <img src={url} alt="Evidence" className="h-full w-full object-cover" />
+                        )}
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition group-hover:opacity-100">
+                           <span className="text-[10px] font-bold text-white uppercase">{isVideo ? 'Video' : 'Image'}</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
               ) : (
                 <p className="mt-3 text-xs text-[rgb(var(--color-text-secondary))]">No evidence uploaded yet.</p>
               )}
