@@ -20,6 +20,7 @@ import {
 } from '../../components/customerDashboard/types'
 import { useAuth } from '../../contexts/useAuth'
 import { customerDashboardService } from '../../services/customerDashboardService'
+import { compressImage } from '../../utils/compression'
 
 const categoryOptions = ['Electrical', 'Plumbing', 'IT/Network', 'Civil', 'Housekeeping']
 
@@ -155,6 +156,9 @@ function CustomerDashboardAdvancedPage() {
   const [feedbackComment, setFeedbackComment] = useState('')
   const [feedbackError, setFeedbackError] = useState('')
   const [feedbackMessage, setFeedbackMessage] = useState('')
+
+  const [pendingFiles, setPendingFiles] = useState<{ file: File; preview: string }[]>([])
+  const [isCompressing, setIsCompressing] = useState(false)
 
   const [profilePhone, setProfilePhone] = useState('+91-98XXXXXX10')
   const [profileHostel, setProfileHostel] = useState('Boys Hostel 2, Room 310')
@@ -398,7 +402,7 @@ function CustomerDashboardAdvancedPage() {
     pushNotification('Complaint Acknowledged', `${ticketId} has been registered in queue.`, 'success')
   }
 
-  const handleEvidenceUpload = (files: FileList | null) => {
+  const handleEvidenceUpload = async (files: FileList | null) => {
     if (!selectedComplaint || !files || files.length === 0) {
       return
     }
@@ -406,54 +410,86 @@ function CustomerDashboardAdvancedPage() {
     const maxSizeBytes = 10 * 1024 * 1024
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/mp4']
 
-    const acceptedUrls: string[] = []
+    const newPending: { file: File; preview: string }[] = []
     const rejectedNames: string[] = []
 
-    Array.from(files).forEach((file) => {
+    setIsCompressing(true)
+    setUploadError('')
+    setUploadMessage('')
+
+    for (const file of Array.from(files)) {
       const validType = allowedMimeTypes.includes(file.type)
       const validSize = file.size <= maxSizeBytes
+
       if (validType && validSize) {
-        // Create Object URL for preview
-        acceptedUrls.push(URL.createObjectURL(file))
+        try {
+          let fileToUse = file
+          if (file.type.startsWith('image/')) {
+            fileToUse = await compressImage(file, 0.7, 1024)
+          }
+          newPending.push({
+            file: fileToUse,
+            preview: URL.createObjectURL(fileToUse),
+          })
+        } catch (err) {
+          console.error('Compression error:', err)
+          newPending.push({ file, preview: URL.createObjectURL(file) })
+        }
       } else {
         rejectedNames.push(file.name)
       }
-    })
+    }
+    setIsCompressing(false)
 
-    if (acceptedUrls.length > 0) {
-      setComplaints((prev) =>
-        prev.map((item) => {
-          if (item.id !== selectedComplaint.id) {
-            return item
-          }
-
-          return {
-            ...item,
-            evidence: [...item.evidence, ...acceptedUrls],
-            updatedAt: 'Just now',
-            updatedAtIso: new Date().toISOString(),
-            timeline: [
-              ...item.timeline,
-              {
-                id: crypto.randomUUID(),
-                label: `Evidence uploaded (${acceptedUrls.length} file(s))`,
-                when: nowStamp(),
-              },
-            ],
-          }
-        }),
-      )
-
-      setUploadMessage(`${acceptedUrls.length} file(s) attached with instant preview.`)
-      setUploadError('')
-      pushNotification('Evidence Added', `${selectedComplaint.id} updated with new attachments.`, 'info')
+    if (newPending.length > 0) {
+      setPendingFiles((prev) => [...prev, ...newPending])
+      setUploadMessage(`${newPending.length} file(s) staged for review.`)
     }
 
     if (rejectedNames.length > 0) {
       setUploadError(
-        `Rejected: ${rejectedNames.join(', ')}. Rules: JPG, PNG, MP4 (max 10MB).`,
+        `Rejected ${rejectedNames.length} file(s). Rules: JPG/PNG/MP4 max 10MB.`,
       )
     }
+  }
+
+  const removePendingFile = (index: number) => {
+    setPendingFiles((prev) => {
+      const next = [...prev]
+      URL.revokeObjectURL(next[index].preview)
+      next.splice(index, 1)
+      return next
+    })
+  }
+
+  const finalizeUpload = () => {
+    if (!selectedComplaint || pendingFiles.length === 0) return
+
+    const urls = pendingFiles.map((p) => p.preview)
+
+    setComplaints((prev) =>
+      prev.map((item) => {
+        if (item.id !== selectedComplaint.id) return item
+        return {
+          ...item,
+          evidence: [...item.evidence, ...urls],
+          updatedAt: 'Just now',
+          updatedAtIso: new Date().toISOString(),
+          timeline: [
+            ...item.timeline,
+            {
+              id: crypto.randomUUID(),
+              label: `Added ${urls.length} evidence attachment(s)`,
+              when: nowStamp(),
+            },
+          ],
+        }
+      }),
+    )
+
+    setPendingFiles([])
+    setUploadMessage(`Successfully attached ${urls.length} file(s).`)
+    pushNotification('Evidence Finalized', `${selectedComplaint.id} attachments saved.`, 'success')
   }
 
   const handleReopenRequest = () => {
@@ -588,7 +624,11 @@ function CustomerDashboardAdvancedPage() {
             uploadMessage={uploadMessage}
             feedbackError={feedbackError}
             feedbackMessage={feedbackMessage}
+            pendingFiles={pendingFiles}
+            isCompressing={isCompressing}
             onEvidenceUpload={handleEvidenceUpload}
+            onRemovePendingFile={removePendingFile}
+            onFinalizeUpload={finalizeUpload}
             onFeedbackRatingChange={setFeedbackRating}
             onFeedbackCommentChange={setFeedbackComment}
             onSubmitFeedback={submitFeedback}

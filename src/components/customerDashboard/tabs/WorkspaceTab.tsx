@@ -10,7 +10,11 @@ type WorkspaceTabProps = {
   uploadMessage: string
   feedbackError: string
   feedbackMessage: string
+  pendingFiles: { file: File; preview: string }[]
+  isCompressing: boolean
   onEvidenceUpload: (files: FileList | null) => void
+  onRemovePendingFile: (index: number) => void
+  onFinalizeUpload: () => void
   onFeedbackRatingChange: (value: number) => void
   onFeedbackCommentChange: (value: string) => void
   onSubmitFeedback: () => void
@@ -27,7 +31,11 @@ function WorkspaceTab({
   uploadMessage,
   feedbackError,
   feedbackMessage,
+  pendingFiles,
+  isCompressing,
   onEvidenceUpload,
+  onRemovePendingFile,
+  onFinalizeUpload,
   onFeedbackRatingChange,
   onFeedbackCommentChange,
   onSubmitFeedback,
@@ -87,18 +95,18 @@ function WorkspaceTab({
             </div>
 
             <div className="mt-4">
-              <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Timeline</p>
-              <ul className="mt-2 space-y-2">
-                {complaint.timeline.map((step) => (
-                  <li
-                    key={step.id}
-                    className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] px-3 py-2"
-                  >
-                    <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">{step.label}</p>
-                    <p className="text-xs text-[rgb(var(--color-text-secondary))]">{step.when}</p>
-                  </li>
+              <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">Activity Timeline</p>
+              <div className="relative mt-4 ml-2 space-y-6 border-l-2 border-[rgb(var(--color-border))] pl-6">
+                {complaint.timeline.map((step, idx) => (
+                  <div key={step.id} className="relative">
+                    <div className="absolute -left-[31px] top-1.5 h-4 w-4 rounded-full border-2 border-[rgb(var(--color-primary))] bg-[rgb(var(--color-bg))]" />
+                    <div className="group rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] p-3 transition hover:border-[rgb(var(--color-primary))/0.3]">
+                      <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))] group-hover:text-[rgb(var(--color-primary))]">{step.label}</p>
+                      <p className="mt-0.5 text-xs text-[rgb(var(--color-text-secondary))]">{step.when}</p>
+                    </div>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           </article>
 
@@ -122,30 +130,74 @@ function WorkspaceTab({
                 className="hidden"
               />
 
-              {complaint.evidence.length > 0 ? (
-                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {complaint.evidence.map((url) => {
-                    const isVideo = url.toLowerCase().includes('.mp4') || url.startsWith('blob:') && url.includes('video');
-                    return (
-                      <div key={url} className="group relative aspect-square overflow-hidden rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] shadow-sm transition hover:scale-[1.02]">
-                        {isVideo ? (
-                          <video src={url} className="h-full w-full object-cover" />
-                        ) : (
-                          <img src={url} alt="Evidence" className="h-full w-full object-cover" />
-                        )}
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition group-hover:opacity-100">
-                           <span className="text-[10px] font-bold text-white uppercase">{isVideo ? 'Video' : 'Image'}</span>
-                        </div>
-                      </div>
-                    )
-                  })}
+              {isCompressing && (
+                <div className="mt-3 flex items-center gap-2 text-xs text-[rgb(var(--color-primary))]">
+                  <div className="h-3 w-3 animate-spin rounded-full border-2 border-[rgb(var(--color-primary))] border-t-transparent" />
+                  Optimizing and compressing images...
                 </div>
-              ) : (
-                <p className="mt-3 text-xs text-[rgb(var(--color-text-secondary))]">No evidence uploaded yet.</p>
               )}
 
-              {uploadError ? <p className="mt-2 text-xs font-semibold text-[rgb(var(--color-danger))]">{uploadError}</p> : null}
-              {uploadMessage ? <p className="mt-2 text-xs font-semibold text-[rgb(var(--color-success))]">{uploadMessage}</p> : null}
+              {pendingFiles.length > 0 && (
+                <div className="mt-4 space-y-3">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[rgb(var(--color-text-secondary))]">Staged for Upload</p>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {pendingFiles.map((p, idx) => {
+                      const isVideo = p.file.type.includes('video')
+                      return (
+                        <div key={p.preview} className="group relative aspect-square overflow-hidden rounded-xl border-2 border-[rgb(var(--color-primary))/0.3] bg-[rgb(var(--color-card))] shadow-sm">
+                          {isVideo ? (
+                            <video src={p.preview} className="h-full w-full object-cover" />
+                          ) : (
+                            <img src={p.preview} className="h-full w-full object-cover" />
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => onRemovePendingFile(idx)}
+                            className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition group-hover:opacity-100 hover:bg-[rgb(var(--color-danger))]"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={onFinalizeUpload}
+                    className="w-full rounded-xl bg-[rgb(var(--color-primary))] py-2.5 text-xs font-bold text-white shadow-lg transition hover:bg-[rgb(var(--color-primary-hover))] active:scale-[0.98]"
+                  >
+                    Confirm & Attach to Ticket
+                  </button>
+                </div>
+              )}
+
+              <div className="mt-6 border-t border-[rgb(var(--color-border))] pt-4">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[rgb(var(--color-text-secondary))]">Attached Evidence</p>
+                {complaint.evidence.length > 0 ? (
+                  <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {complaint.evidence.map((url) => {
+                      const isVideo = url.toLowerCase().includes('.mp4') || (url.startsWith('blob:') && url.includes('video'))
+                      return (
+                        <div key={url} className="group relative aspect-square overflow-hidden rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-card))] shadow-sm transition hover:scale-[1.02]">
+                          {isVideo ? (
+                            <video src={url} className="h-full w-full object-cover" />
+                          ) : (
+                            <img src={url} alt="Evidence" className="h-full w-full object-cover" />
+                          )}
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition group-hover:opacity-100">
+                             <span className="text-[10px] font-bold text-white uppercase">{isVideo ? 'Video' : 'Image'}</span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <p className="mt-2 text-xs text-[rgb(var(--color-text-secondary))] italic">No finalized evidence yet.</p>
+                )}
+              </div>
+
+              {uploadError ? <p className="mt-3 text-xs font-semibold text-[rgb(var(--color-danger))]">{uploadError}</p> : null}
+              {uploadMessage ? <p className="mt-3 text-xs font-semibold text-[rgb(var(--color-success))]">{uploadMessage}</p> : null}
             </div>
 
             <div className="rounded-2xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] p-4">
